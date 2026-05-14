@@ -1,0 +1,970 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AI Goblin Cores — Slingshot</title>
+<style>
+  :root {
+    --bg: #0a0b0f;
+    --surface: #14161d;
+    --surface-2: #1c1f28;
+    --surface-3: #252834;
+    --border: #2a2d38;
+    --border-strong: #3a3e4b;
+    --text: #f0f0f2;
+    --text-2: #8b8f9a;
+    --text-3: #555863;
+    --accent: #ff4d2e;
+    --accent-soft: rgba(255, 77, 46, 0.12);
+    --cyan: #00d4ff;
+    --cyan-soft: rgba(0, 212, 255, 0.12);
+    --green: #4ade80;
+    --green-soft: rgba(74, 222, 128, 0.12);
+    --yellow: #ffc233;
+    --yellow-soft: rgba(255, 194, 51, 0.12);
+    --red: #ff5252;
+    --red-soft: rgba(255, 82, 82, 0.14);
+    --purple: #a855f7;
+    --purple-soft: rgba(168, 85, 247, 0.14);
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    height: 100%;
+  }
+
+  body {
+    display: grid;
+    grid-template-columns: 232px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ============ SIDEBAR (carried from dashboard) ============ */
+  aside.sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+  }
+  .brand {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid var(--border);
+    font-size: 17px; font-weight: 600;
+    letter-spacing: -0.01em;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .brand-mark {
+    width: 22px; height: 22px;
+    background: var(--accent);
+    border-radius: 6px;
+    display: grid; place-items: center;
+    color: #fff; font-size: 13px; font-weight: 700;
+  }
+  .brand-mark::after { content: "S"; }
+  .brand-version { color: var(--text-3); font-size: 11px; font-weight: 400; margin-left: 4px; }
+
+  nav.nav { padding: 12px 12px; flex: 1; display: flex; flex-direction: column; gap: 2px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border-radius: 6px;
+    color: var(--text-2); cursor: pointer;
+    font-weight: 500; transition: background .1s, color .1s;
+  }
+  .nav-item:hover { background: var(--surface-2); color: var(--text); }
+  .nav-item.active { background: var(--accent-soft); color: var(--accent); }
+  .nav-item .badge {
+    margin-left: auto; background: var(--surface-3);
+    color: var(--text-2); font-size: 11px; font-weight: 600;
+    padding: 1px 6px; border-radius: 4px; font-family: var(--mono);
+  }
+  .nav-item.active .badge { background: rgba(255,77,46,0.2); color: var(--accent); }
+  .nav-section {
+    color: var(--text-3); font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 14px 10px 6px;
+  }
+  .sidebar-footer {
+    padding: 14px 16px; border-top: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--cyan));
+    display: grid; place-items: center;
+    color: #fff; font-weight: 700; font-size: 12px;
+  }
+  .user-meta { line-height: 1.2; }
+  .user-name { font-weight: 600; font-size: 13px; }
+  .user-role { color: var(--text-3); font-size: 11px; }
+
+  /* ============ MAIN ============ */
+  main { display: flex; flex-direction: column; min-width: 0; }
+
+  header.topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 32px; border-bottom: 1px solid var(--border);
+    background: var(--bg); position: sticky; top: 0; z-index: 10;
+  }
+  .crumbs {
+    color: var(--text-3); font-size: 12px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .crumbs a { color: var(--text-2); text-decoration: none; cursor: pointer; }
+  .crumbs a:hover { color: var(--text); }
+  .crumbs .sep { color: var(--text-3); }
+  .crumbs .current { color: var(--text); font-weight: 500; }
+
+  .topbar-actions { display: flex; gap: 8px; align-items: center; }
+
+  .btn {
+    border: 1px solid var(--border); background: var(--surface);
+    color: var(--text); padding: 7px 12px; border-radius: 6px;
+    font-size: 13px; cursor: pointer; font-family: var(--sans);
+    transition: background .1s, border-color .1s;
+  }
+  .btn:hover { background: var(--surface-2); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  .btn-primary:hover { background: #ff6249; }
+  .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text-2); }
+  .btn-ghost:hover { color: var(--text); border-color: var(--border-strong); }
+  .btn-danger {
+    background: transparent; border: 1px solid rgba(255,82,82,0.3);
+    color: var(--red);
+  }
+  .btn-danger:hover { background: var(--red-soft); }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+
+  /* ============ HERO ============ */
+  .hero {
+    padding: 28px 32px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-meta {
+    color: var(--text-3); font-size: 12px;
+    text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .hero-title {
+    font-size: 30px; font-weight: 700; letter-spacing: -0.025em;
+    margin-bottom: 12px;
+  }
+  .hero-tags { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+
+  .pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 4px;
+    font-size: 12px; font-weight: 600;
+  }
+  .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .pill-prepeak { background: var(--cyan-soft); color: var(--cyan); }
+  .pill-prepeak .dot { background: var(--cyan); }
+  .pill-low { background: var(--green-soft); color: var(--green); }
+  .pill-low .dot { background: var(--green); }
+  .pill-tag {
+    background: var(--surface-2); color: var(--text-2);
+    border: 1px solid var(--border);
+  }
+  .pill-velocity { background: var(--green-soft); color: var(--green); font-family: var(--mono); }
+
+  .hero-actions { display: flex; gap: 10px; }
+
+  /* ============ STATS ROW ============ */
+  .stats {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+    background: var(--border);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .stat {
+    background: var(--bg);
+    padding: 18px 24px;
+  }
+  .stat-label {
+    color: var(--text-3); font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .stat-value { font-size: 22px; font-weight: 700; font-family: var(--mono); letter-spacing: -0.02em; }
+  .stat-note { color: var(--text-2); font-size: 12px; margin-top: 3px; }
+
+  /* ============ CONTENT GRID ============ */
+  .content {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 24px;
+    padding: 24px 32px 40px;
+    align-items: flex-start;
+  }
+  .col-main { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+  .col-side { display: flex; flex-direction: column; gap: 16px; }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .panel-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .panel-title { font-weight: 600; font-size: 14px; }
+  .panel-title small { color: var(--text-3); font-weight: 400; margin-left: 6px; font-size: 12px; }
+  .panel-body { padding: 18px; }
+  .panel-body.tight { padding: 0; }
+
+  .right-link { margin-left: auto; color: var(--text-3); font-size: 12px; cursor: pointer; }
+  .right-link:hover { color: var(--text); }
+
+  /* ============ VELOCITY CHART ============ */
+  .chart-wrap { padding: 4px 18px 18px; }
+  .chart-axis {
+    display: flex; justify-content: space-between;
+    color: var(--text-3); font-size: 10px; font-family: var(--mono);
+    margin-top: 6px;
+  }
+  svg.chart { display: block; width: 100%; height: 140px; }
+
+  /* ============ IP ANALYSIS ============ */
+  .ip-grade {
+    display: flex; align-items: center; gap: 14px;
+    padding-bottom: 14px; border-bottom: 1px solid var(--border);
+    margin-bottom: 14px;
+  }
+  .ip-score {
+    width: 64px; height: 64px;
+    background: var(--green-soft);
+    border: 1px solid rgba(74,222,128,0.3);
+    border-radius: 12px;
+    display: grid; place-items: center;
+    font-size: 28px; font-weight: 700; color: var(--green);
+    font-family: var(--mono);
+  }
+  .ip-grade-text h3 { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+  .ip-grade-text p { color: var(--text-2); font-size: 12px; }
+  .ip-checks { display: flex; flex-direction: column; gap: 10px; }
+  .ip-check { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; }
+  .ip-check .icon {
+    width: 18px; height: 18px; border-radius: 50%;
+    display: grid; place-items: center; flex-shrink: 0;
+    font-size: 11px; font-weight: 700;
+    margin-top: 1px;
+  }
+  .check-ok { background: var(--green-soft); color: var(--green); }
+  .check-ok::after { content: "✓"; }
+  .check-warn { background: var(--yellow-soft); color: var(--yellow); }
+  .check-warn::after { content: "!"; }
+  .check-fail { background: var(--red-soft); color: var(--red); }
+  .check-fail::after { content: "✕"; }
+  .ip-check .label { font-weight: 500; }
+  .ip-check .why { color: var(--text-3); font-size: 12px; }
+
+  /* ============ TWO-UP ============ */
+  .two-up { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+  /* ============ SOURCE SAMPLES ============ */
+  .sources {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+    padding: 18px;
+  }
+  .source-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color .15s, transform .15s;
+  }
+  .source-card:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-1px);
+  }
+  .source-thumb {
+    aspect-ratio: 9 / 12;
+    background: linear-gradient(135deg, var(--surface-3), var(--border));
+    position: relative;
+    display: grid; place-items: center;
+    color: var(--text-3);
+    font-size: 28px;
+    overflow: hidden;
+  }
+  .source-thumb.tt::before {
+    content: ""; position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 30% 40%, rgba(255,0,80,0.3), transparent 50%),
+      radial-gradient(circle at 70% 60%, rgba(0,242,234,0.3), transparent 50%);
+  }
+  .source-thumb.yt::before {
+    content: ""; position: absolute; inset: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(255,0,0,0.15), transparent 70%);
+  }
+  .source-thumb-icon { z-index: 1; opacity: 0.5; }
+  .source-platform {
+    position: absolute; top: 8px; left: 8px;
+    background: rgba(0,0,0,0.6);
+    color: #fff; font-size: 10px; font-weight: 600;
+    padding: 2px 6px; border-radius: 3px;
+    display: flex; align-items: center; gap: 4px; z-index: 2;
+  }
+  .source-views {
+    position: absolute; bottom: 8px; right: 8px;
+    background: rgba(0,0,0,0.6);
+    color: #fff; font-size: 10px; font-weight: 600;
+    padding: 2px 6px; border-radius: 3px;
+    font-family: var(--mono); z-index: 2;
+  }
+  .source-meta { padding: 10px 12px; }
+  .source-caption {
+    font-size: 12px; line-height: 1.4;
+    color: var(--text);
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+  .source-creator { color: var(--text-3); font-size: 11px; }
+
+  /* ============ CONCEPT SEEDS ============ */
+  .seeds-intro {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 18px; border-bottom: 1px solid var(--border);
+    background: var(--accent-soft);
+  }
+  .seeds-intro-icon {
+    width: 22px; height: 22px;
+    background: var(--accent); color: #fff;
+    border-radius: 5px; display: grid; place-items: center;
+    font-size: 12px; font-weight: 700;
+  }
+  .seeds-intro-text { font-size: 13px; }
+  .seeds-intro-text b { color: var(--accent); }
+
+  .seeds {
+    display: flex; flex-direction: column;
+  }
+  .seed {
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .seed:last-child { border-bottom: none; }
+  .seed-head {
+    display: flex; align-items: flex-start; gap: 14px;
+    margin-bottom: 12px;
+  }
+  .seed-num {
+    width: 26px; height: 26px;
+    background: var(--surface-3);
+    border-radius: 6px;
+    display: grid; place-items: center;
+    color: var(--text-2); font-size: 12px; font-weight: 700; font-family: var(--mono);
+    flex-shrink: 0;
+  }
+  .seed-headline { flex: 1; }
+  .seed-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; letter-spacing: -0.01em; }
+  .seed-genres {
+    display: flex; gap: 6px; flex-wrap: wrap;
+  }
+  .genre-tag {
+    background: var(--purple-soft); color: var(--purple);
+    font-size: 11px; font-weight: 600;
+    padding: 2px 7px; border-radius: 3px;
+  }
+  .seed-score {
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .seed-score-num {
+    font-size: 22px; font-weight: 700; font-family: var(--mono);
+    color: var(--accent); line-height: 1;
+  }
+  .seed-score-label {
+    color: var(--text-3); font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600;
+    margin-top: 2px;
+  }
+  .seed-body { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 14px; }
+  .seed-pitch {
+    color: var(--text-2); font-size: 13px; line-height: 1.55;
+  }
+  .seed-pitch strong { color: var(--text); font-weight: 600; }
+
+  .seed-specs { display: flex; flex-direction: column; gap: 8px; }
+  .spec-row {
+    display: flex; justify-content: space-between;
+    font-size: 12px; padding: 6px 0;
+    border-bottom: 1px dashed var(--border);
+  }
+  .spec-row:last-child { border-bottom: none; }
+  .spec-label { color: var(--text-3); }
+  .spec-value { color: var(--text); font-weight: 500; font-family: var(--mono); }
+
+  .seed-actions { display: flex; gap: 8px; }
+
+  /* ============ SIDE PANELS ============ */
+  .researcher-card {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 18px;
+  }
+  .researcher-card .av {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: #5571ff;
+    display: grid; place-items: center;
+    color: #fff; font-weight: 700; font-size: 13px;
+  }
+  .researcher-card .info { flex: 1; }
+  .researcher-card .name { font-weight: 600; font-size: 14px; }
+  .researcher-card .meta { color: var(--text-3); font-size: 12px; }
+
+  .timeline {
+    padding: 14px 18px;
+  }
+  .timeline-item {
+    display: flex; gap: 12px; padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .timeline-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .timeline-item:first-child { padding-top: 0; }
+  .timeline-time {
+    color: var(--text-3); font-size: 11px; font-family: var(--mono);
+    min-width: 56px; padding-top: 2px;
+  }
+  .timeline-body {
+    font-size: 12px; color: var(--text-2); line-height: 1.45;
+  }
+  .timeline-body b { color: var(--text); font-weight: 600; }
+
+  .similar-list {
+    padding: 8px 14px;
+  }
+  .similar-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 4px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .similar-item:last-child { border-bottom: none; }
+  .similar-item:hover { background: var(--surface-2); }
+  .similar-thumb {
+    width: 36px; height: 36px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, var(--surface-3), var(--border));
+    flex-shrink: 0;
+  }
+  .similar-info { flex: 1; min-width: 0; }
+  .similar-name { font-size: 13px; font-weight: 500; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .similar-meta { color: var(--text-3); font-size: 11px; font-family: var(--mono); }
+  .similar-outcome {
+    font-size: 11px; font-weight: 600;
+    padding: 2px 6px; border-radius: 3px;
+    font-family: var(--mono);
+  }
+  .outcome-hit { background: var(--green-soft); color: var(--green); }
+  .outcome-miss { background: var(--red-soft); color: var(--red); }
+  .outcome-pending { background: var(--yellow-soft); color: var(--yellow); }
+
+  .notes-panel textarea {
+    width: 100%; min-height: 100px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+    resize: vertical;
+  }
+  .notes-panel textarea:focus { outline: none; border-color: var(--accent); }
+  .notes-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 10px;
+  }
+  .notes-saved { color: var(--text-3); font-size: 11px; }
+
+  @media (max-width: 1100px) {
+    .content { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .sources { grid-template-columns: repeat(2, 1fr); }
+    .two-up { grid-template-columns: 1fr; }
+    .seed-body { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="brand">
+    <span class="brand-mark"></span>
+    slingshot
+    <span class="brand-version">v0.1</span>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-section">Research</div>
+    <div class="nav-item active">
+      <span>📡</span> Live trends
+      <span class="badge">47</span>
+    </div>
+    <div class="nav-item"><span>🔍</span> Trend archive</div>
+    <div class="nav-item"><span>⚠</span> IP watchlist<span class="badge">8</span></div>
+
+    <div class="nav-section">Production</div>
+    <div class="nav-item"><span>💡</span> Concepts<span class="badge">12</span></div>
+    <div class="nav-item"><span>🛠</span> Pipeline<span class="badge">5</span></div>
+    <div class="nav-item"><span>🚀</span> Live games<span class="badge">3</span></div>
+
+    <div class="nav-section">Org</div>
+    <div class="nav-item"><span>👥</span> Team</div>
+    <div class="nav-item"><span>📊</span> Analytics</div>
+    <div class="nav-item"><span>⚙</span> Settings</div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="avatar">FO</div>
+    <div class="user-meta">
+      <div class="user-name">Finnley</div>
+      <div class="user-role">Lead · Slingshot</div>
+    </div>
+  </div>
+</aside>
+
+<main>
+
+  <header class="topbar">
+    <div class="crumbs">
+      <a>Research</a> <span class="sep">/</span>
+      <a>Live trends</a> <span class="sep">/</span>
+      <span class="current">AI Goblin Cores</span>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-sm">← Prev</button>
+      <button class="btn btn-sm">Next →</button>
+      <button class="btn btn-sm">Share</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-meta">Trend · first detected May 6, 2026 (7 days ago)</div>
+    <h1 class="hero-title">AI Goblin Cores</h1>
+    <div class="hero-tags">
+      <span class="pill pill-prepeak"><span class="dot"></span>Pre-peak</span>
+      <span class="pill pill-velocity">↗ +220% wow</span>
+      <span class="pill pill-low"><span class="dot"></span>Low IP risk</span>
+      <span class="pill pill-tag">TikTok-native</span>
+      <span class="pill pill-tag">Character-driven</span>
+      <span class="pill pill-tag">Tween demo (9–13)</span>
+    </div>
+    <div class="hero-actions">
+      <button class="btn btn-primary">→ Convert to concept</button>
+      <button class="btn">Defer 48h</button>
+      <button class="btn btn-danger">Pass — too risky</button>
+    </div>
+  </section>
+
+  <section class="stats">
+    <div class="stat">
+      <div class="stat-label">Posts (7d)</div>
+      <div class="stat-value">412K</div>
+      <div class="stat-note">+184K vs prev wk</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Engagement rate</div>
+      <div class="stat-value">8.4%</div>
+      <div class="stat-note">2.3× platform avg</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Top creator reach</div>
+      <div class="stat-value">3.1M</div>
+      <div class="stat-note">@goblincore.ai · 880K followers</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Est. days to peak</div>
+      <div class="stat-value">6–9</div>
+      <div class="stat-note">based on velocity curve</div>
+    </div>
+  </section>
+
+  <section class="content">
+
+    <div class="col-main">
+
+      <!-- VELOCITY + IP -->
+      <div class="two-up">
+
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Velocity <small>· last 14 days</small></div>
+            <span class="right-link">View raw data →</span>
+          </div>
+          <div class="chart-wrap">
+            <svg class="chart" viewBox="0 0 400 140" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.45"/>
+                  <stop offset="100%" stop-color="#00d4ff" stop-opacity="0"/>
+                </linearGradient>
+                <linearGradient id="line" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#00d4ff"/>
+                  <stop offset="100%" stop-color="#ff4d2e"/>
+                </linearGradient>
+              </defs>
+              <!-- gridlines -->
+              <line x1="0" y1="35" x2="400" y2="35" stroke="#2a2d38" stroke-dasharray="2,4" />
+              <line x1="0" y1="70" x2="400" y2="70" stroke="#2a2d38" stroke-dasharray="2,4" />
+              <line x1="0" y1="105" x2="400" y2="105" stroke="#2a2d38" stroke-dasharray="2,4" />
+              <!-- area -->
+              <path d="M 0 130 L 0 122 L 30 118 L 60 121 L 90 115 L 120 108 L 150 105 L 180 96 L 210 88 L 240 76 L 270 60 L 300 44 L 330 30 L 360 18 L 400 8 L 400 140 L 0 140 Z" fill="url(#grad)" />
+              <!-- line -->
+              <path d="M 0 122 L 30 118 L 60 121 L 90 115 L 120 108 L 150 105 L 180 96 L 210 88 L 240 76 L 270 60 L 300 44 L 330 30 L 360 18 L 400 8" stroke="url(#line)" stroke-width="2.5" fill="none" stroke-linecap="round" />
+              <!-- today marker -->
+              <circle cx="400" cy="8" r="4" fill="#ff4d2e" />
+              <circle cx="400" cy="8" r="8" fill="#ff4d2e" fill-opacity="0.2" />
+            </svg>
+            <div class="chart-axis">
+              <span>−14d</span><span>−10d</span><span>−7d</span><span>−3d</span><span>today</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">IP risk analysis <small>· auto-vetted</small></div>
+            <span class="right-link">Re-run →</span>
+          </div>
+          <div class="panel-body">
+            <div class="ip-grade">
+              <div class="ip-score">A</div>
+              <div class="ip-grade-text">
+                <h3>Low risk — safe to ship</h3>
+                <p>5 of 5 vectors clear. No rights holder detected.</p>
+              </div>
+            </div>
+            <div class="ip-checks">
+              <div class="ip-check">
+                <span class="icon check-ok"></span>
+                <div>
+                  <div class="label">No registered trademark on "goblin core"</div>
+                  <div class="why">USPTO + EU trademark database, May 13</div>
+                </div>
+              </div>
+              <div class="ip-check">
+                <span class="icon check-ok"></span>
+                <div>
+                  <div class="label">Characters are AI-generated, no creator owns them</div>
+                  <div class="why">Reverse image search across top 50 posts — no match to known artists</div>
+                </div>
+              </div>
+              <div class="ip-check">
+                <span class="icon check-ok"></span>
+                <div>
+                  <div class="label">Audio tracks are royalty-free or original</div>
+                  <div class="why">Most-used sound: original creator upload, no label claim</div>
+                </div>
+              </div>
+              <div class="ip-check">
+                <span class="icon check-ok"></span>
+                <div>
+                  <div class="label">No active YouTube DMCA filings on related videos</div>
+                  <div class="why">Sampled 30 top videos — 0 takedowns</div>
+                </div>
+              </div>
+              <div class="ip-check">
+                <span class="icon check-ok"></span>
+                <div>
+                  <div class="label">Roblox moderation history clean</div>
+                  <div class="why">No "goblin core" experiences delisted in last 90 days</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- SOURCE SAMPLES -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Top source posts <small>· auto-pulled, ranked by engagement</small></div>
+          <span class="right-link">See all 47 →</span>
+        </div>
+        <div class="sources">
+
+          <div class="source-card">
+            <div class="source-thumb tt">
+              <div class="source-platform"><span style="color:#ff0050">●</span> TikTok</div>
+              <div class="source-thumb-icon">🪓</div>
+              <div class="source-views">3.1M</div>
+            </div>
+            <div class="source-meta">
+              <div class="source-caption">"POV: you found a goblin core in the woods 💀💀💀 #goblincore"</div>
+              <div class="source-creator">@goblincore.ai</div>
+            </div>
+          </div>
+
+          <div class="source-card">
+            <div class="source-thumb tt">
+              <div class="source-platform"><span style="color:#ff0050">●</span> TikTok</div>
+              <div class="source-thumb-icon">🎭</div>
+              <div class="source-views">2.4M</div>
+            </div>
+            <div class="source-meta">
+              <div class="source-caption">"day 4 of training my goblin core (he's evolving)"</div>
+              <div class="source-creator">@cores.lab</div>
+            </div>
+          </div>
+
+          <div class="source-card">
+            <div class="source-thumb yt">
+              <div class="source-platform"><span style="color:#ff0000">▶</span> YouTube</div>
+              <div class="source-thumb-icon">🧌</div>
+              <div class="source-views">1.8M</div>
+            </div>
+            <div class="source-meta">
+              <div class="source-caption">"ranking every goblin core from worst to GOATED"</div>
+              <div class="source-creator">@coreranker (211K subs)</div>
+            </div>
+          </div>
+
+          <div class="source-card">
+            <div class="source-thumb tt">
+              <div class="source-platform"><span style="color:#ff0050">●</span> TikTok</div>
+              <div class="source-thumb-icon">⚔</div>
+              <div class="source-views">1.6M</div>
+            </div>
+            <div class="source-meta">
+              <div class="source-caption">"goblin core battle royale arc — who wins?"</div>
+              <div class="source-creator">@aigobcore</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- CONCEPT SEEDS -->
+      <div class="panel">
+        <div class="seeds-intro">
+          <div class="seeds-intro-icon">✦</div>
+          <div class="seeds-intro-text">
+            <b>3 concept seeds</b> generated by Claude from this trend's pattern signature. Pick one to advance into the concepts pipeline.
+          </div>
+        </div>
+
+        <div class="seeds">
+
+          <div class="seed">
+            <div class="seed-head">
+              <div class="seed-num">01</div>
+              <div class="seed-headline">
+                <div class="seed-title">Goblin Core Tycoon</div>
+                <div class="seed-genres">
+                  <span class="genre-tag">Tycoon</span>
+                  <span class="genre-tag">Collector</span>
+                  <span class="genre-tag">Idle</span>
+                </div>
+              </div>
+              <div class="seed-score">
+                <div class="seed-score-num">87</div>
+                <div class="seed-score-label">Fit score</div>
+              </div>
+            </div>
+            <div class="seed-body">
+              <div class="seed-pitch">
+                Players run a forest hideout that <strong>passively generates Robux</strong> from goblin cores they collect. Each core is a distinct character with rarity tiers. Players unlock plots, decorate caves, and battle other players' goblin lineups in async PvP. Hook: <strong>weekly new core drops</strong> tied to whatever's trending that week — the game itself becomes the trend feed.
+              </div>
+              <div class="seed-specs">
+                <div class="spec-row"><span class="spec-label">Genre fit</span><span class="spec-value">High</span></div>
+                <div class="spec-row"><span class="spec-label">Dev time est.</span><span class="spec-value">14 days</span></div>
+                <div class="spec-row"><span class="spec-label">Art load</span><span class="spec-value">~60 cores</span></div>
+                <div class="spec-row"><span class="spec-label">Monetization</span><span class="spec-value">Gamepass + dev product</span></div>
+                <div class="spec-row"><span class="spec-label">Reusable systems</span><span class="spec-value">5 / 6 ✓</span></div>
+              </div>
+            </div>
+            <div class="seed-actions">
+              <button class="btn btn-primary btn-sm">→ Advance to concepts</button>
+              <button class="btn btn-ghost btn-sm">Tweak prompt</button>
+              <button class="btn btn-ghost btn-sm">Discard</button>
+            </div>
+          </div>
+
+          <div class="seed">
+            <div class="seed-head">
+              <div class="seed-num">02</div>
+              <div class="seed-headline">
+                <div class="seed-title">Steal a Goblin Core</div>
+                <div class="seed-genres">
+                  <span class="genre-tag">PvP steal</span>
+                  <span class="genre-tag">Collector</span>
+                </div>
+              </div>
+              <div class="seed-score">
+                <div class="seed-score-num">82</div>
+                <div class="seed-score-label">Fit score</div>
+              </div>
+            </div>
+            <div class="seed-body">
+              <div class="seed-pitch">
+                Direct application of the proven <strong>Steal a Brainrot</strong> genre to goblin cores. Players place cores on their plot to generate currency; rivals can raid and steal lower-tier cores. <strong>Faster to ship</strong> than concept 01 because the gameplay loop and reusable framework already exist from your steal-genre playbook.
+              </div>
+              <div class="seed-specs">
+                <div class="spec-row"><span class="spec-label">Genre fit</span><span class="spec-value">Very high</span></div>
+                <div class="spec-row"><span class="spec-label">Dev time est.</span><span class="spec-value">8 days</span></div>
+                <div class="spec-row"><span class="spec-label">Art load</span><span class="spec-value">~40 cores</span></div>
+                <div class="spec-row"><span class="spec-label">Monetization</span><span class="spec-value">Gamepass-heavy</span></div>
+                <div class="spec-row"><span class="spec-label">Reusable systems</span><span class="spec-value">6 / 6 ✓</span></div>
+              </div>
+            </div>
+            <div class="seed-actions">
+              <button class="btn btn-primary btn-sm">→ Advance to concepts</button>
+              <button class="btn btn-ghost btn-sm">Tweak prompt</button>
+              <button class="btn btn-ghost btn-sm">Discard</button>
+            </div>
+          </div>
+
+          <div class="seed">
+            <div class="seed-head">
+              <div class="seed-num">03</div>
+              <div class="seed-headline">
+                <div class="seed-title">Goblin Core Arena</div>
+                <div class="seed-genres">
+                  <span class="genre-tag">Battle</span>
+                  <span class="genre-tag">Collector</span>
+                  <span class="genre-tag">Async PvP</span>
+                </div>
+              </div>
+              <div class="seed-score">
+                <div class="seed-score-num">71</div>
+                <div class="seed-score-label">Fit score</div>
+              </div>
+            </div>
+            <div class="seed-body">
+              <div class="seed-pitch">
+                Battle-pet style game where players build a 3-core team and fight async ladder matches. <strong>Higher dev complexity</strong> — combat balancing, matchmaking, anti-cheat — but a fresh genre angle that doesn't compete with the saturated steal/tycoon meta. Best fit if your researcher is right that the audience wants something <em>new</em> from goblin cores rather than another Steal-a-X clone.
+              </div>
+              <div class="seed-specs">
+                <div class="spec-row"><span class="spec-label">Genre fit</span><span class="spec-value">Medium</span></div>
+                <div class="spec-row"><span class="spec-label">Dev time est.</span><span class="spec-value">21 days</span></div>
+                <div class="spec-row"><span class="spec-label">Art load</span><span class="spec-value">~30 cores + FX</span></div>
+                <div class="spec-row"><span class="spec-label">Monetization</span><span class="spec-value">Battle pass + cosmetics</span></div>
+                <div class="spec-row"><span class="spec-label">Reusable systems</span><span class="spec-value">3 / 6</span></div>
+              </div>
+            </div>
+            <div class="seed-actions">
+              <button class="btn btn-primary btn-sm">→ Advance to concepts</button>
+              <button class="btn btn-ghost btn-sm">Tweak prompt</button>
+              <button class="btn btn-ghost btn-sm">Discard</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SIDE COLUMN -->
+    <aside class="col-side">
+
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title">Assigned</div></div>
+        <div class="researcher-card">
+          <div class="av">SM</div>
+          <div class="info">
+            <div class="name">Sara M.</div>
+            <div class="meta">Researcher · flagged this 6d ago</div>
+          </div>
+          <button class="btn btn-sm btn-ghost">Reassign</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title">Activity</div></div>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-time">just now</div>
+            <div class="timeline-body"><b>Claude</b> generated 3 concept seeds</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-time">2h ago</div>
+            <div class="timeline-body"><b>IP scan</b> re-ran — still 5/5 clean</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-time">yesterday</div>
+            <div class="timeline-body"><b>Velocity</b> crossed pre-peak threshold (+150% wow)</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-time">3d ago</div>
+            <div class="timeline-body"><b>Sara</b> added 12 new source posts</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-time">7d ago</div>
+            <div class="timeline-body"><b>Sara</b> flagged this trend (manual entry)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title">Similar trends <small>· outcomes</small></div></div>
+        <div class="similar-list">
+          <div class="similar-item">
+            <div class="similar-thumb"></div>
+            <div class="similar-info">
+              <div class="similar-name">Italian Brainrot</div>
+              <div class="similar-meta">2025-08 · 14d to peak</div>
+            </div>
+            <span class="similar-outcome outcome-hit">HIT</span>
+          </div>
+          <div class="similar-item">
+            <div class="similar-thumb"></div>
+            <div class="similar-info">
+              <div class="similar-name">Fairy Core Toys</div>
+              <div class="similar-meta">2025-11 · 9d to peak</div>
+            </div>
+            <span class="similar-outcome outcome-hit">HIT</span>
+          </div>
+          <div class="similar-item">
+            <div class="similar-thumb"></div>
+            <div class="similar-info">
+              <div class="similar-name">Cottagecore Reboot</div>
+              <div class="similar-meta">2026-02 · 18d to peak</div>
+            </div>
+            <span class="similar-outcome outcome-miss">MISS</span>
+          </div>
+          <div class="similar-item">
+            <div class="similar-thumb"></div>
+            <div class="similar-info">
+              <div class="similar-name">Demon Pets AI</div>
+              <div class="similar-meta">2026-04 · still rising</div>
+            </div>
+            <span class="similar-outcome outcome-pending">LIVE</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel notes-panel">
+        <div class="panel-head"><div class="panel-title">Researcher notes</div></div>
+        <div class="panel-body">
+          <textarea placeholder="Drop observations, source links, hypothesis notes…">Reach is concentrated in 9–13 demographic. Top 3 creators all using AI image gen — comment sections are full of kids asking "where do I get one." Suggests strong latent demand for an interactive version. Recommend prioritizing concept 02 (Steal-style) for fastest ship; bank concept 01 for after.</textarea>
+          <div class="notes-footer">
+            <span class="notes-saved">Saved · 4 minutes ago</span>
+            <button class="btn btn-sm">Save note</button>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+  </section>
+
+</main>
+
+</body>
+</html>

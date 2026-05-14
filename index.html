@@ -1,0 +1,1172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Slingshot — Today</title>
+<style>
+  :root {
+    --bg: #08090c;
+    --surface: #111318;
+    --surface-2: #181b22;
+    --surface-3: #20232c;
+    --border: #1f2128;
+    --border-strong: #2c2f38;
+    --text: #f0f1f4;
+    --text-2: #8d909a;
+    --text-3: #555864;
+    --accent: #ff4d2e;
+    --accent-soft: rgba(255, 77, 46, 0.13);
+    --blue: #4f86ff;
+    --blue-soft: rgba(79, 134, 255, 0.13);
+    --green: #4ade80;
+    --green-soft: rgba(74, 222, 128, 0.13);
+    --yellow: #ffc233;
+    --yellow-soft: rgba(255, 194, 51, 0.13);
+    --red: #ff5252;
+    --red-soft: rgba(255, 82, 82, 0.13);
+    --mono: ui-monospace, "JetBrains Mono", "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+    --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    height: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    display: grid;
+    grid-template-columns: 208px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ============ SIDEBAR ============ */
+  aside.sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 16px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
+
+  .brand {
+    padding: 0 16px 18px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+  .brand-mark {
+    width: 22px; height: 22px;
+    background: var(--accent);
+    border-radius: 6px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+  }
+  .brand-mark::after { content: "S"; }
+  .brand-version {
+    color: var(--text-3);
+    font-size: 10px;
+    font-weight: 500;
+    margin-left: auto;
+    background: var(--surface-2);
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+
+  nav.nav {
+    padding: 4px 8px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 6px 10px;
+    border-radius: 5px;
+    color: var(--text-2);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background .1s, color .1s;
+  }
+  .nav-item:hover { background: var(--surface-2); color: var(--text); }
+  .nav-item.active {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  .nav-item .ic {
+    width: 14px;
+    display: inline-block;
+    text-align: center;
+    font-size: 13px;
+  }
+  .nav-item .badge {
+    margin-left: auto;
+    background: var(--surface-3);
+    color: var(--text-2);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: var(--mono);
+  }
+  .nav-item.active .badge {
+    background: rgba(255,77,46,0.22);
+    color: var(--accent);
+  }
+  .nav-section {
+    color: var(--text-3);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 14px 12px 4px;
+  }
+
+  .sidebar-footer {
+    padding: 12px 14px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .avatar {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--blue));
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 11px;
+  }
+  .avatar.sm { width: 18px; height: 18px; font-size: 9px; }
+  .avatar.lg { width: 38px; height: 38px; font-size: 14px; }
+  .av-sara { background: linear-gradient(135deg, #5571ff, #00d4ff); }
+  .av-marcus { background: linear-gradient(135deg, #a855f7, #ec4899); }
+  .av-finnley { background: linear-gradient(135deg, #ff4d2e, #ffc233); }
+
+  .user-meta { line-height: 1.2; min-width: 0; flex: 1; }
+  .user-name { font-weight: 600; font-size: 12.5px; }
+  .user-role { color: var(--text-3); font-size: 11px; }
+
+  /* ============ MAIN ============ */
+  main { display: flex; flex-direction: column; min-width: 0; }
+
+  /* ============ TOPBAR ============ */
+  header.topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .search {
+    flex: 1;
+    max-width: 480px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: var(--text-3);
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .search:hover { border-color: var(--border-strong); }
+  .search .kbd {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 11px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--text-2);
+  }
+  .top-actions { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+  .top-date { color: var(--text-3); font-size: 12px; font-family: var(--mono); }
+
+  .btn {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    padding: 6px 11px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: var(--sans);
+    transition: background .1s, border-color .1s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn:hover { background: var(--surface-2); }
+  .btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    font-weight: 600;
+  }
+  .btn-primary:hover { background: #ff6249; }
+  .btn-ghost { background: transparent; }
+  .btn-ghost:hover { background: var(--surface); }
+  .btn-sm { padding: 4px 8px; font-size: 12px; }
+  .btn-icon { padding: 6px; }
+
+  /* ============ PAGE HEAD ============ */
+  .page-head {
+    padding: 24px 28px 16px;
+  }
+  .page-eyebrow {
+    color: var(--text-3);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .page-title {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .page-sub {
+    color: var(--text-2);
+    font-size: 13px;
+    margin-top: 4px;
+  }
+
+  /* ============ KPI ROW ============ */
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    padding: 4px 28px 20px;
+  }
+  .kpi {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--text-3);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .kpi-head .live {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--green);
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 500;
+  }
+  .live-dot {
+    width: 6px; height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    box-shadow: 0 0 0 0 rgba(74,222,128,0.6);
+    animation: pulse 1.6s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(74,222,128,0.7); }
+    70% { box-shadow: 0 0 0 8px rgba(74,222,128,0); }
+    100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); }
+  }
+  .kpi-value {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    font-family: var(--mono);
+    line-height: 1.1;
+  }
+  .kpi-value .unit {
+    font-size: 14px;
+    color: var(--text-3);
+    font-weight: 500;
+    margin-left: 2px;
+  }
+  .kpi-sub {
+    color: var(--text-2);
+    font-size: 12px;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .kpi-spark {
+    height: 32px;
+    margin-top: 10px;
+    margin-left: -16px;
+    margin-right: -16px;
+    margin-bottom: -14px;
+  }
+  .kpi-spark svg { width: 100%; height: 100%; display: block; }
+  .empty-state {
+    color: var(--text-3);
+    font-size: 11px;
+    font-style: italic;
+  }
+
+  /* ============ CONTENT GRID ============ */
+  .content-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 20px;
+    padding: 0 28px 32px;
+  }
+
+  /* ============ PANEL ============ */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .panel-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .panel-title {
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .panel-title .count {
+    background: var(--surface-3);
+    color: var(--text-2);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 1px 7px;
+    border-radius: 999px;
+    font-family: var(--mono);
+  }
+  .panel-title small {
+    color: var(--text-3);
+    font-weight: 400;
+    margin-left: 4px;
+    font-size: 12px;
+  }
+  .panel-actions { margin-left: auto; display: flex; gap: 6px; }
+
+  .filter-tabs {
+    display: flex;
+    gap: 2px;
+    background: var(--surface-2);
+    padding: 2px;
+    border-radius: 6px;
+  }
+  .filter-tab {
+    padding: 4px 10px;
+    border-radius: 4px;
+    color: var(--text-2);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .filter-tab.active { background: var(--surface); color: var(--text); box-shadow: 0 0 0 1px var(--border); }
+
+  /* ============ TASK LIST ============ */
+  .tasks { padding: 6px 0; }
+  .task {
+    display: grid;
+    grid-template-columns: 22px 1fr auto auto auto auto;
+    gap: 14px;
+    align-items: center;
+    padding: 10px 18px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background .1s;
+  }
+  .task:last-child { border-bottom: none; }
+  .task:hover { background: var(--surface-2); }
+
+  .check {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border-strong);
+    cursor: pointer;
+    transition: border-color .1s;
+  }
+  .check:hover { border-color: var(--accent); }
+  .task.done .check {
+    background: var(--green);
+    border-color: var(--green);
+    position: relative;
+  }
+  .task.done .check::after {
+    content: "✓"; position: absolute;
+    top: -1px; left: 2.5px;
+    color: var(--bg); font-size: 11px; font-weight: 800;
+  }
+  .task.done .task-title { color: var(--text-3); text-decoration: line-through; }
+
+  .task-main { min-width: 0; }
+  .task-title {
+    font-size: 13.5px;
+    font-weight: 500;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .task-meta {
+    color: var(--text-3);
+    font-size: 11.5px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .task-pri {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .pri-high { background: var(--red); }
+  .pri-med { background: var(--yellow); }
+  .pri-low { background: var(--text-3); }
+  .pri-label {
+    color: var(--text-2);
+    font-size: 11.5px;
+    font-weight: 500;
+    text-transform: capitalize;
+    min-width: 50px;
+  }
+
+  .task-due {
+    font-size: 11.5px;
+    color: var(--text-2);
+    font-family: var(--mono);
+    min-width: 70px;
+    text-align: right;
+  }
+  .task-due.overdue { color: var(--red); }
+  .task-due.today { color: var(--yellow); }
+  .task-due.soon { color: var(--green); }
+
+  .task-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--surface-3);
+    color: var(--text-2);
+  }
+  .status-progress { background: var(--blue-soft); color: var(--blue); }
+  .status-blocked { background: var(--red-soft); color: var(--red); }
+  .status-review { background: var(--yellow-soft); color: var(--yellow); }
+  .status-todo { background: var(--surface-3); color: var(--text-2); }
+
+  .add-task-row {
+    padding: 10px 18px;
+    color: var(--text-3);
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-top: 1px solid var(--border);
+  }
+  .add-task-row:hover { color: var(--text-2); background: var(--surface-2); }
+
+  /* ============ ACTIVITY FEED ============ */
+  .activity { padding: 6px 18px 14px; }
+  .activity-item {
+    display: flex;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .activity-item:last-child { border-bottom: none; }
+  .activity-icon {
+    width: 24px; height: 24px;
+    border-radius: 6px;
+    background: var(--surface-2);
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .activity-body {
+    font-size: 12.5px;
+    color: var(--text-2);
+    line-height: 1.45;
+    min-width: 0;
+    flex: 1;
+  }
+  .activity-body b { color: var(--text); font-weight: 600; }
+  .activity-time {
+    color: var(--text-3);
+    font-size: 11px;
+    font-family: var(--mono);
+    margin-top: 2px;
+  }
+
+  /* ============ TEAM CARD ============ */
+  .team-list { padding: 6px 18px 14px; }
+  .team-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .team-row:last-child { border-bottom: none; }
+  .team-info { flex: 1; min-width: 0; }
+  .team-name { font-size: 13px; font-weight: 500; }
+  .team-status { color: var(--text-3); font-size: 11.5px; }
+  .team-stats {
+    text-align: right;
+    color: var(--text-2);
+    font-size: 11.5px;
+    font-family: var(--mono);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .team-stats .done { color: var(--green); }
+  .team-stats .open { color: var(--text-2); }
+
+  .online-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+    border: 2px solid var(--surface);
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+  }
+  .av-wrap { position: relative; flex-shrink: 0; }
+
+  /* ============ GAMES STRIP ============ */
+  .games-section { padding: 4px 28px 32px; }
+  .section-head {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .section-head h2 {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-head h2 small { color: var(--text-3); font-weight: 400; font-size: 13px; }
+  .section-actions { margin-left: auto; }
+
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+  }
+  .game-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color .15s, transform .15s;
+  }
+  .game-card:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-1px);
+  }
+  .game-thumb {
+    aspect-ratio: 16 / 9;
+    background: linear-gradient(135deg, var(--surface-2), var(--surface-3));
+    position: relative;
+    display: grid;
+    place-items: center;
+    color: var(--text-3);
+    font-size: 32px;
+  }
+  .game-thumb.gradient-1::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 30% 30%, rgba(255,77,46,0.3), transparent 50%),
+      radial-gradient(circle at 70% 70%, rgba(79,134,255,0.3), transparent 50%);
+  }
+  .game-thumb-content { z-index: 1; opacity: 0.55; }
+  .game-status-pill {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+    background: rgba(8,9,12,0.85);
+    border: 1px solid var(--border);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--text);
+  }
+  .status-dev { color: var(--blue); }
+  .status-dev .dot { background: var(--blue); width: 5px; height: 5px; border-radius: 50%; }
+  .status-live { color: var(--green); }
+  .status-live .dot { background: var(--green); width: 5px; height: 5px; border-radius: 50%; }
+
+  .game-body { padding: 12px 14px; }
+  .game-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .game-genre { color: var(--text-3); font-size: 11.5px; margin-bottom: 10px; }
+  .game-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+  .game-stat-label {
+    color: var(--text-3);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+  .game-stat-value {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .game-stat-value.muted { color: var(--text-3); }
+
+  .game-progress {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+  .progress-bar {
+    height: 4px;
+    background: var(--surface-2);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blue), var(--accent));
+    border-radius: 2px;
+  }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-3);
+    font-family: var(--mono);
+  }
+
+  .game-card.empty {
+    border-style: dashed;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    min-height: 220px;
+    text-align: center;
+  }
+  .game-card.empty:hover {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .game-card.empty .plus {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    display: grid;
+    place-items: center;
+    font-size: 22px;
+    color: var(--text-2);
+    margin-bottom: 10px;
+  }
+  .game-card.empty:hover .plus { color: var(--accent); border-color: var(--accent); }
+  .game-card.empty .empty-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+  .game-card.empty .empty-desc { color: var(--text-3); font-size: 12px; line-height: 1.4; max-width: 200px; }
+
+  /* ============ DEVEX BANNER ============ */
+  .devex-banner {
+    margin: 0 28px 16px;
+    background: linear-gradient(90deg, var(--accent-soft), transparent);
+    border: 1px solid rgba(255,77,46,0.2);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 13px;
+  }
+  .devex-icon {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .devex-body { flex: 1; }
+  .devex-body b { color: var(--accent); font-weight: 600; }
+  .devex-progress {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--text-2);
+    font-family: var(--mono);
+  }
+  .devex-progress .bar {
+    width: 120px;
+    height: 4px;
+    background: var(--surface-2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .devex-progress .fill {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+  }
+
+  @media (max-width: 1100px) {
+    .content-grid { grid-template-columns: 1fr; }
+    .kpis { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ SIDEBAR ============ -->
+<aside class="sidebar">
+  <div class="brand">
+    <span class="brand-mark"></span>
+    slingshot
+    <span class="brand-version">v0.1</span>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-item active"><span class="ic">⌂</span> Today</div>
+    <div class="nav-item"><span class="ic">✓</span> All tasks <span class="badge">11</span></div>
+    <div class="nav-item"><span class="ic">⏱</span> Inbox <span class="badge">3</span></div>
+
+    <div class="nav-section">Production</div>
+    <div class="nav-item"><span class="ic">🎮</span> Games <span class="badge">0 / 1</span></div>
+    <div class="nav-item"><span class="ic">📡</span> Trends</div>
+    <div class="nav-item"><span class="ic">🛠</span> Framework</div>
+
+    <div class="nav-section">Org</div>
+    <div class="nav-item"><span class="ic">👥</span> Team</div>
+    <div class="nav-item"><span class="ic">$</span> Payouts</div>
+    <div class="nav-item"><span class="ic">⚙</span> Settings</div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="av-wrap">
+      <div class="avatar av-finnley">FO</div>
+      <div class="online-dot"></div>
+    </div>
+    <div class="user-meta">
+      <div class="user-name">Finnley</div>
+      <div class="user-role">Lead</div>
+    </div>
+  </div>
+</aside>
+
+<main>
+
+  <!-- ============ TOPBAR ============ -->
+  <header class="topbar">
+    <div class="search">
+      <span>🔍</span>
+      <span>Search tasks, games, trends…</span>
+      <span class="kbd">⌘K</span>
+    </div>
+    <div class="top-actions">
+      <span class="top-date">Tue · May 13 · 2026</span>
+      <button class="btn btn-sm btn-ghost btn-icon">🔔</button>
+      <button class="btn btn-sm btn-primary">+ New task</button>
+    </div>
+  </header>
+
+  <!-- ============ PAGE HEAD ============ -->
+  <div class="page-head">
+    <div class="page-eyebrow">Tuesday</div>
+    <h1 class="page-title">Good morning, Finnley</h1>
+    <div class="page-sub">3 tasks for you today · 8 tasks across the team · Game 1 ships Friday if framework lands by Wed.</div>
+  </div>
+
+  <!-- ============ KPI ROW ============ -->
+  <section class="kpis">
+    <div class="kpi">
+      <div class="kpi-head">
+        <span>Live players</span>
+        <span class="live"><span class="live-dot"></span>live</span>
+      </div>
+      <div class="kpi-value">0</div>
+      <div class="kpi-sub empty-state">No games shipped yet</div>
+      <svg class="kpi-spark" viewBox="0 0 200 40" preserveAspectRatio="none">
+        <line x1="0" y1="38" x2="200" y2="38" stroke="#2c2f38" stroke-dasharray="2,3" />
+      </svg>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-head">
+        <span>Robux today</span>
+        <span class="live"><span class="live-dot"></span>live</span>
+      </div>
+      <div class="kpi-value">R$ 0</div>
+      <div class="kpi-sub empty-state">DevEx ready when first game ships</div>
+      <svg class="kpi-spark" viewBox="0 0 200 40" preserveAspectRatio="none">
+        <line x1="0" y1="38" x2="200" y2="38" stroke="#2c2f38" stroke-dasharray="2,3" />
+      </svg>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-head">
+        <span>USD today</span>
+        <span style="color:var(--text-3); font-size:10px;">DevEx · R$1 = $0.0035</span>
+      </div>
+      <div class="kpi-value">$ 0<span class="unit">.00</span></div>
+      <div class="kpi-sub empty-state">Threshold: R$ 30,000 = $105</div>
+      <svg class="kpi-spark" viewBox="0 0 200 40" preserveAspectRatio="none">
+        <line x1="0" y1="38" x2="200" y2="38" stroke="#2c2f38" stroke-dasharray="2,3" />
+      </svg>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-head">
+        <span>Tasks open</span>
+      </div>
+      <div class="kpi-value">11</div>
+      <div class="kpi-sub">
+        <span style="color:var(--red);">●</span> 2 overdue
+        <span style="color:var(--yellow); margin-left:6px;">●</span> 4 due today
+        <span style="color:var(--text-3); margin-left:6px;">●</span> 5 later
+      </div>
+      <svg class="kpi-spark" viewBox="0 0 200 40" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="taskGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#ff4d2e" stop-opacity="0.4"/>
+            <stop offset="100%" stop-color="#ff4d2e" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path d="M 0 30 L 20 28 L 40 31 L 60 24 L 80 26 L 100 20 L 120 22 L 140 14 L 160 18 L 180 10 L 200 8 L 200 40 L 0 40 Z" fill="url(#taskGrad)" />
+        <path d="M 0 30 L 20 28 L 40 31 L 60 24 L 80 26 L 100 20 L 120 22 L 140 14 L 160 18 L 180 10 L 200 8" stroke="#ff4d2e" stroke-width="1.5" fill="none" />
+      </svg>
+    </div>
+  </section>
+
+  <!-- ============ DEVEX PROGRESS BANNER ============ -->
+  <div class="devex-banner">
+    <div class="devex-icon">$</div>
+    <div class="devex-body">
+      <b>DevEx not yet active.</b> First payout unlocks at <b>R$ 30,000</b> earned ($105 USD). Set up your Roblox Premium subscription + verified ID this week so the pipeline is ready when Game 1 ships.
+    </div>
+    <button class="btn btn-sm">Set up payouts →</button>
+  </div>
+
+  <!-- ============ CONTENT GRID ============ -->
+  <section class="content-grid">
+
+    <!-- LEFT: YOUR TASKS -->
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">
+          Your tasks
+          <span class="count">3</span>
+          <small>· today</small>
+        </div>
+        <div class="panel-actions">
+          <div class="filter-tabs">
+            <div class="filter-tab active">Mine</div>
+            <div class="filter-tab">Team</div>
+            <div class="filter-tab">All</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tasks">
+
+        <div class="task">
+          <div class="check"></div>
+          <div class="task-main">
+            <div class="task-title">Sign 3-way revenue split agreement (legal)</div>
+            <div class="task-meta">Payouts go to one verified account — paper this before any Robux flows · Blocking</div>
+          </div>
+          <div class="task-pri pri-high"></div>
+          <div class="pri-label">Urgent</div>
+          <div class="task-due overdue">Overdue 2d</div>
+          <div class="task-status status-blocked">⚠ Blocked</div>
+        </div>
+
+        <div class="task">
+          <div class="check"></div>
+          <div class="task-main">
+            <div class="task-title">Set up Roblox Premium + verify ID for DevEx</div>
+            <div class="task-meta">Required before any payouts can clear · ~30 min</div>
+          </div>
+          <div class="task-pri pri-high"></div>
+          <div class="pri-label">High</div>
+          <div class="task-due today">Today</div>
+          <div class="task-status status-todo">To do</div>
+        </div>
+
+        <div class="task">
+          <div class="check"></div>
+          <div class="task-main">
+            <div class="task-title">Approve Game 1 concept doc (Speed Run Lava)</div>
+            <div class="task-meta">Sara submitted Mon · waiting on your sign-off before Marcus starts Luau work</div>
+          </div>
+          <div class="task-pri pri-med"></div>
+          <div class="pri-label">Medium</div>
+          <div class="task-due today">Today</div>
+          <div class="task-status status-review">In review</div>
+        </div>
+
+        <div class="task done">
+          <div class="check"></div>
+          <div class="task-main">
+            <div class="task-title">Brief team on the 2-week / first-game cadence</div>
+            <div class="task-meta">Done Mon · meeting notes saved to /team</div>
+          </div>
+          <div class="task-pri pri-low"></div>
+          <div class="pri-label">Low</div>
+          <div class="task-due">Yesterday</div>
+          <div class="task-status status-todo">Done</div>
+        </div>
+
+        <div class="add-task-row">+ Add task</div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div style="display:flex; flex-direction:column; gap:16px;">
+
+      <!-- TEAM -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Team <small>· 3 active</small></div>
+          <div class="panel-actions">
+            <button class="btn btn-sm btn-ghost">View all</button>
+          </div>
+        </div>
+        <div class="team-list">
+          <div class="team-row">
+            <div class="av-wrap">
+              <div class="avatar av-finnley">FO</div>
+              <div class="online-dot"></div>
+            </div>
+            <div class="team-info">
+              <div class="team-name">Finnley · You</div>
+              <div class="team-status">Lead · approving concepts</div>
+            </div>
+            <div class="team-stats">
+              <span class="done">1 done</span>
+              <span class="open">3 open</span>
+            </div>
+          </div>
+          <div class="team-row">
+            <div class="av-wrap">
+              <div class="avatar av-marcus">MR</div>
+              <div class="online-dot"></div>
+            </div>
+            <div class="team-info">
+              <div class="team-name">Marcus</div>
+              <div class="team-status">Builder · framework systems</div>
+            </div>
+            <div class="team-stats">
+              <span class="done">2 done</span>
+              <span class="open">4 open</span>
+            </div>
+          </div>
+          <div class="team-row">
+            <div class="av-wrap">
+              <div class="avatar av-sara">SM</div>
+              <div class="online-dot"></div>
+            </div>
+            <div class="team-info">
+              <div class="team-name">Sara</div>
+              <div class="team-status">Researcher · trend tracking</div>
+            </div>
+            <div class="team-stats">
+              <span class="done">3 done</span>
+              <span class="open">4 open</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTIVITY -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Activity</div>
+          <div class="panel-actions">
+            <button class="btn btn-sm btn-ghost">Filter</button>
+          </div>
+        </div>
+        <div class="activity">
+          <div class="activity-item">
+            <div class="activity-icon">✓</div>
+            <div class="activity-body">
+              <b>Sara</b> finished the IP-risk vetting checklist
+              <div class="activity-time">12 min ago</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-icon">📡</div>
+            <div class="activity-body">
+              <b>Sara</b> flagged 4 new pre-peak trends overnight
+              <div class="activity-time">2h ago</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-icon">🛠</div>
+            <div class="activity-body">
+              <b>Marcus</b> shipped the currency + DataStore module to /framework
+              <div class="activity-time">5h ago</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-icon">📄</div>
+            <div class="activity-body">
+              <b>Sara</b> submitted Game 1 concept doc for review
+              <div class="activity-time">yesterday</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-icon">⚙</div>
+            <div class="activity-body">
+              <b>Marcus</b> set up Roblox Studio + Luau LSP
+              <div class="activity-time">yesterday</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ GAMES STRIP ============ -->
+  <section class="games-section">
+    <div class="section-head">
+      <h2>Games <small>· 0 live · 1 in dev</small></h2>
+      <div class="section-actions">
+        <button class="btn btn-sm">+ New game</button>
+      </div>
+    </div>
+
+    <div class="games-grid">
+
+      <!-- Game 1 — in dev -->
+      <div class="game-card">
+        <div class="game-thumb gradient-1">
+          <div class="game-status-pill status-dev"><span class="dot"></span>In dev · Day 4 / 14</div>
+          <div class="game-thumb-content">🌋</div>
+        </div>
+        <div class="game-body">
+          <div class="game-title">Speed Run Lava</div>
+          <div class="game-genre">Obby · simulator hybrid · Marcus + Sara</div>
+
+          <div class="game-progress">
+            <div class="progress-bar"><div class="progress-fill" style="width: 28%"></div></div>
+            <div class="progress-label">
+              <span>Framework: 2/6 systems · Art: 0/40</span>
+              <span>28%</span>
+            </div>
+          </div>
+
+          <div class="game-stats">
+            <div>
+              <div class="game-stat-label">CCU</div>
+              <div class="game-stat-value muted">—</div>
+            </div>
+            <div>
+              <div class="game-stat-label">R$ / wk</div>
+              <div class="game-stat-value muted">—</div>
+            </div>
+            <div>
+              <div class="game-stat-label">Ships</div>
+              <div class="game-stat-value">Fri</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty slots -->
+      <div class="game-card empty">
+        <div class="plus">+</div>
+        <div class="empty-title">No live games yet</div>
+        <div class="empty-desc">Game 1 ships Friday. After that, this card fills with live CCU + Robux.</div>
+      </div>
+
+      <div class="game-card empty">
+        <div class="plus">+</div>
+        <div class="empty-title">Start Game 2 in pipeline</div>
+        <div class="empty-desc">Once Game 1 ships, Sara can hand off a pre-peak trend to Marcus.</div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+</body>
+</html>
