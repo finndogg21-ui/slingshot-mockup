@@ -167,6 +167,15 @@
   .av-sara { background: linear-gradient(135deg, #5571ff, #00d4ff); }
   .av-marcus { background: linear-gradient(135deg, #a855f7, #ec4899); }
   .av-finnley { background: linear-gradient(135deg, #ff4d2e, #ffc233); }
+  .av-matthew { background: linear-gradient(135deg, #4ade80, #00d4ff); }
+  .av-hudson { background: linear-gradient(135deg, #a855f7, #4f86ff); }
+  .task-loading, .task-empty {
+    padding: 18px;
+    color: var(--text-3);
+    text-align: center;
+    font-size: 13px;
+    font-style: italic;
+  }
 
   .user-meta { line-height: 1.2; min-width: 0; flex: 1; }
   .user-name { font-weight: 600; font-size: 12.5px; }
@@ -948,7 +957,7 @@
   .chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
 </style>
 </head>
-<body>
+<body style="visibility:hidden">
 
 <!-- ============ SIDEBAR ============ -->
 <aside class="sidebar">
@@ -976,12 +985,12 @@
 
   <div class="sidebar-footer">
     <div class="av-wrap">
-      <div class="avatar av-finnley">FO</div>
+      <div class="avatar av-finnley" id="sb-avatar">FO</div>
       <div class="online-dot"></div>
     </div>
     <div class="user-meta">
-      <div class="user-name">Finnley</div>
-      <div class="user-role">Lead</div>
+      <div class="user-name" id="sb-name">Finnley</div>
+      <div class="user-role" id="sb-role">Lead</div>
     </div>
   </div>
 </aside>
@@ -996,17 +1005,18 @@
       <span class="kbd">⌘K</span>
     </div>
     <div class="top-actions">
-      <span class="top-date">Tue · May 13 · 2026</span>
+      <span class="top-date" id="top-date">—</span>
       <button class="btn btn-sm btn-ghost btn-icon">🔔</button>
+      <button class="btn btn-sm" id="logoutBtn">Sign out</button>
       <button class="btn btn-sm btn-primary">+ New task</button>
     </div>
   </header>
 
   <!-- ============ PAGE HEAD ============ -->
   <div class="page-head">
-    <div class="page-eyebrow">Tuesday</div>
-    <h1 class="page-title">Good morning, Finnley</h1>
-    <div class="page-sub">3 tasks for you today · 8 tasks across the team · Game 1 ships Friday if framework lands by Wed.</div>
+    <div class="page-eyebrow" id="page-eyebrow">Today</div>
+    <h1 class="page-title" id="greeting">Good morning</h1>
+    <div class="page-sub" id="page-sub">Loading your tasks…</div>
   </div>
 
   <!-- ============ KPI ROW ============ -->
@@ -1051,11 +1061,11 @@
       <div class="kpi-head">
         <span>Tasks open</span>
       </div>
-      <div class="kpi-value">11</div>
+      <div class="kpi-value" id="kpi-tasks">—</div>
       <div class="kpi-sub">
-        <span style="color:var(--red);">●</span> 2 overdue
-        <span style="color:var(--yellow); margin-left:6px;">●</span> 4 due today
-        <span style="color:var(--text-3); margin-left:6px;">●</span> 5 later
+        <span style="color:var(--red);">●</span> <span id="kpi-overdue">0</span> overdue
+        <span style="color:var(--yellow); margin-left:6px;">●</span> <span id="kpi-today">0</span> due today
+        <span style="color:var(--text-3); margin-left:6px;">●</span> <span id="kpi-later">0</span> later
       </div>
       <svg class="kpi-spark" viewBox="0 0 200 40" preserveAspectRatio="none">
         <defs>
@@ -1099,57 +1109,8 @@
         </div>
       </div>
 
-      <div class="tasks">
-
-        <div class="task">
-          <div class="check"></div>
-          <div class="task-main">
-            <div class="task-title">Sign 3-way revenue split agreement (legal)</div>
-            <div class="task-meta">Payouts go to one verified account — paper this before any Robux flows · Blocking</div>
-          </div>
-          <div class="task-pri pri-high"></div>
-          <div class="pri-label">Urgent</div>
-          <div class="task-due overdue">Overdue 2d</div>
-          <div class="task-status status-blocked">⚠ Blocked</div>
-        </div>
-
-        <div class="task">
-          <div class="check"></div>
-          <div class="task-main">
-            <div class="task-title">Set up Roblox Premium + verify ID for DevEx</div>
-            <div class="task-meta">Required before any payouts can clear · ~30 min</div>
-          </div>
-          <div class="task-pri pri-high"></div>
-          <div class="pri-label">High</div>
-          <div class="task-due today">Today</div>
-          <div class="task-status status-todo">To do</div>
-        </div>
-
-        <div class="task">
-          <div class="check"></div>
-          <div class="task-main">
-            <div class="task-title">Approve Game 1 concept doc (Speed Run Lava)</div>
-            <div class="task-meta">Sara submitted Mon · waiting on your sign-off before Marcus starts Luau work</div>
-          </div>
-          <div class="task-pri pri-med"></div>
-          <div class="pri-label">Medium</div>
-          <div class="task-due today">Today</div>
-          <div class="task-status status-review">In review</div>
-        </div>
-
-        <div class="task done">
-          <div class="check"></div>
-          <div class="task-main">
-            <div class="task-title">Brief team on the 2-week / first-game cadence</div>
-            <div class="task-meta">Done Mon · meeting notes saved to /team</div>
-          </div>
-          <div class="task-pri pri-low"></div>
-          <div class="pri-label">Low</div>
-          <div class="task-due">Yesterday</div>
-          <div class="task-status status-todo">Done</div>
-        </div>
-
-        <div class="add-task-row">+ Add task</div>
+      <div class="tasks" id="task-list">
+        <div class="task-loading">Loading your tasks…</div>
       </div>
     </div>
 
@@ -1471,6 +1432,229 @@
     });
   });
 })();
+</script>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+  const SUPABASE_URL = 'https://euhymovdzlzzxukwcuqe.supabase.co';
+  const SUPABASE_ANON = 'sb_publishable_1HpO0iiNQbss2h2mOS-2VA_Qz75pkC7';
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+  // -------- auth gate --------
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    window.location.replace('./login.html');
+  } else {
+    await initDashboard(session.user);
+    document.body.style.visibility = 'visible';
+  }
+
+  async function initDashboard(authUser) {
+    // Fetch team_member row for the logged-in user
+    const { data: me, error: meErr } = await supabase
+      .from('team_members')
+      .select('*')
+      .eq('user_id', authUser.id)
+      .single();
+
+    if (meErr || !me) {
+      console.error('Could not load team_member:', meErr);
+      document.getElementById('greeting').textContent = 'Welcome';
+      document.getElementById('page-sub').textContent = "We couldn't find your team profile. Ping Finnley.";
+      return;
+    }
+
+    // Greeting + sidebar
+    const hour = new Date().getHours();
+    const partOfDay = hour < 12 ? 'morning' : hour < 18 ? 'afternoon' : 'evening';
+    document.getElementById('greeting').textContent = `Good ${partOfDay}, ${me.name}`;
+    document.getElementById('sb-name').textContent = me.name;
+    document.getElementById('sb-role').textContent = me.role || 'Team';
+    const sbAv = document.getElementById('sb-avatar');
+    sbAv.textContent = me.avatar_initials || me.name.slice(0, 2).toUpperCase();
+    if (me.avatar_grad) {
+      sbAv.classList.remove('av-finnley');
+      sbAv.classList.add(me.avatar_grad);
+    }
+
+    // Date + eyebrow
+    const now = new Date();
+    const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    document.getElementById('top-date').textContent =
+      `${days[now.getDay()]} · ${months[now.getMonth()]} ${now.getDate()} · ${now.getFullYear()}`;
+    document.getElementById('page-eyebrow').textContent =
+      ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][now.getDay()];
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      window.location.replace('./login.html');
+    });
+
+    // Fetch tasks
+    const { data: tasks, error: tasksErr } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('assignee_id', me.id)
+      .order('status', { ascending: true })
+      .order('priority', { ascending: false })
+      .order('due_date', { ascending: true, nullsFirst: false });
+
+    if (tasksErr) {
+      console.error('Could not load tasks:', tasksErr);
+    }
+
+    renderTasks(tasks || [], me);
+    updateKPIs(tasks || []);
+    updateSubtitle(tasks || [], me);
+  }
+
+  function updateSubtitle(tasks, me) {
+    const open = tasks.filter(t => t.status !== 'done');
+    const sub = document.getElementById('page-sub');
+    if (open.length === 0) {
+      sub.textContent = "You're all caught up. Nice.";
+    } else {
+      const overdue = open.filter(t => t.due_date && new Date(t.due_date) < new Date(new Date().toDateString())).length;
+      let parts = [`${open.length} task${open.length === 1 ? '' : 's'} on your plate`];
+      if (overdue > 0) parts.push(`${overdue} overdue`);
+      sub.textContent = parts.join(' · ');
+    }
+  }
+
+  function updateKPIs(tasks) {
+    const open = tasks.filter(t => t.status !== 'done');
+    document.getElementById('kpi-tasks').textContent = open.length;
+
+    const today = new Date(); today.setHours(0,0,0,0);
+    let overdue = 0, dueToday = 0, later = 0;
+    for (const t of open) {
+      if (!t.due_date) { later++; continue; }
+      const d = new Date(t.due_date + 'T00:00:00');
+      const diff = Math.round((d - today) / (1000 * 60 * 60 * 24));
+      if (diff < 0) overdue++;
+      else if (diff === 0) dueToday++;
+      else later++;
+    }
+    document.getElementById('kpi-overdue').textContent = overdue;
+    document.getElementById('kpi-today').textContent = dueToday;
+    document.getElementById('kpi-later').textContent = later;
+  }
+
+  function renderTasks(tasks, me) {
+    const list = document.getElementById('task-list');
+    while (list.firstChild) list.removeChild(list.firstChild);
+
+    const open = tasks.filter(t => t.status !== 'done');
+    if (open.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'task-empty';
+      empty.textContent = "You're all caught up. No open tasks.";
+      list.appendChild(empty);
+    } else {
+      for (const t of open) list.appendChild(renderTaskRow(t, me));
+    }
+
+    // Always allow adding a task
+    const addRow = document.createElement('div');
+    addRow.className = 'add-task-row';
+    addRow.textContent = '+ Add task';
+    list.appendChild(addRow);
+  }
+
+  function renderTaskRow(t, me) {
+    const row = document.createElement('div');
+    row.className = 'task';
+    if (t.status === 'done') row.classList.add('done');
+    row.dataset.taskId = t.id;
+
+    // Checkbox toggles status
+    const check = document.createElement('div');
+    check.className = 'check';
+    check.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const newStatus = t.status === 'done' ? 'todo' : 'done';
+      const { error } = await supabase
+        .from('tasks')
+        .update({
+          status: newStatus,
+          completed_at: newStatus === 'done' ? new Date().toISOString() : null,
+        })
+        .eq('id', t.id);
+      if (error) {
+        console.error('toggle failed', error);
+        return;
+      }
+      // Optimistic UI: hide the row if marked done
+      if (newStatus === 'done') {
+        row.style.transition = 'opacity 0.2s';
+        row.style.opacity = '0';
+        setTimeout(() => row.remove(), 220);
+      }
+    });
+    row.appendChild(check);
+
+    // Title + meta
+    const main = document.createElement('div');
+    main.className = 'task-main';
+    const title = document.createElement('div');
+    title.className = 'task-title';
+    title.textContent = t.title;
+    main.appendChild(title);
+    if (t.outcome) {
+      const meta = document.createElement('div');
+      meta.className = 'task-meta';
+      meta.textContent = t.outcome.length > 120 ? t.outcome.slice(0, 120) + '…' : t.outcome;
+      main.appendChild(meta);
+    }
+    row.appendChild(main);
+
+    // Priority dot
+    const priDot = document.createElement('div');
+    const priClass = (t.priority === 'urgent' || t.priority === 'high') ? 'pri-high'
+      : t.priority === 'medium' ? 'pri-med' : 'pri-low';
+    priDot.className = 'task-pri ' + priClass;
+    row.appendChild(priDot);
+
+    // Priority label
+    const priLabel = document.createElement('div');
+    priLabel.className = 'pri-label';
+    priLabel.textContent = t.priority.charAt(0).toUpperCase() + t.priority.slice(1);
+    row.appendChild(priLabel);
+
+    // Due
+    const due = document.createElement('div');
+    due.className = 'task-due';
+    if (t.due_date) {
+      const today = new Date(); today.setHours(0,0,0,0);
+      const d = new Date(t.due_date + 'T00:00:00');
+      const diff = Math.round((d - today) / (1000 * 60 * 60 * 24));
+      if (diff < 0) { due.classList.add('overdue'); due.textContent = `Overdue ${Math.abs(diff)}d`; }
+      else if (diff === 0) { due.classList.add('today'); due.textContent = 'Today'; }
+      else if (diff <= 3) { due.classList.add('soon'); due.textContent = `${diff}d`; }
+      else { due.textContent = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
+    } else {
+      due.textContent = '—';
+    }
+    row.appendChild(due);
+
+    // Status pill
+    const status = document.createElement('div');
+    const statusClass = t.status === 'blocked' ? 'status-blocked'
+      : t.status === 'in_progress' ? 'status-progress'
+      : t.status === 'in_review' ? 'status-review' : 'status-todo';
+    status.className = 'task-status ' + statusClass;
+    const statusLabel = t.status === 'todo' ? 'To do'
+      : t.status === 'in_progress' ? 'In progress'
+      : t.status === 'blocked' ? '⚠ Blocked'
+      : t.status === 'in_review' ? 'In review' : 'Done';
+    status.textContent = statusLabel;
+    row.appendChild(status);
+
+    return row;
+  }
 </script>
 
 </body>

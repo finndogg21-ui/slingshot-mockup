@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sign in — Slingshot</title>
+<style>
+  :root {
+    --bg: #08090c;
+    --surface: #111318;
+    --surface-2: #181b22;
+    --border: #1f2128;
+    --border-strong: #2c2f38;
+    --text: #f0f1f4;
+    --text-2: #8d909a;
+    --text-3: #555864;
+    --accent: #ff4d2e;
+    --blue: #4f86ff;
+    --red: #ff5252;
+    --red-soft: rgba(255, 82, 82, 0.13);
+    --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  body {
+    display: grid;
+    place-items: center;
+    background: radial-gradient(ellipse at top, rgba(255,77,46,0.06), transparent 60%), var(--bg);
+  }
+  .card {
+    width: 100%;
+    max-width: 380px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 32px 28px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    margin-bottom: 4px;
+  }
+  .brand-mark {
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg, var(--accent), var(--blue));
+    border-radius: 7px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+  }
+  .brand-mark::after { content: "S"; }
+  .subtitle {
+    color: var(--text-3);
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
+  label {
+    display: block;
+    color: var(--text-2);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+    margin-top: 14px;
+  }
+  input {
+    width: 100%;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    padding: 10px 12px;
+    border-radius: 8px;
+  }
+  input:focus { outline: none; border-color: var(--accent); }
+  button.submit {
+    width: 100%;
+    background: var(--accent);
+    border: none;
+    color: #fff;
+    padding: 11px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 22px;
+    font-family: var(--sans);
+  }
+  button.submit:hover { background: #ff6249; }
+  button.submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  .err {
+    background: var(--red-soft);
+    color: var(--red);
+    border: 1px solid rgba(255,82,82,0.25);
+    border-radius: 6px;
+    padding: 9px 12px;
+    font-size: 12.5px;
+    margin-top: 14px;
+    display: none;
+  }
+  .err.show { display: block; }
+  .footer-note {
+    color: var(--text-3);
+    font-size: 11.5px;
+    text-align: center;
+    margin-top: 22px;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+  <main class="card">
+    <div class="brand">
+      <span class="brand-mark"></span>
+      slingshot
+    </div>
+    <div class="subtitle">Sign in to your account</div>
+
+    <form id="loginForm">
+      <label for="email">Email</label>
+      <input id="email" type="email" autocomplete="email" required />
+
+      <label for="password">Password</label>
+      <input id="password" type="password" autocomplete="current-password" required />
+
+      <div class="err" id="err"></div>
+
+      <button class="submit" type="submit" id="submitBtn">Sign in</button>
+    </form>
+
+    <div class="footer-note">
+      Forgot your password? Ping Finnley on Discord.<br>
+      You should only need to log in once per device.
+    </div>
+  </main>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+    const SUPABASE_URL = 'https://euhymovdzlzzxukwcuqe.supabase.co';
+    const SUPABASE_ANON = 'sb_publishable_1HpO0iiNQbss2h2mOS-2VA_Qz75pkC7';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+    // If already signed in, send straight to dashboard
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      window.location.replace('./');
+    }
+
+    const form = document.getElementById('loginForm');
+    const errBox = document.getElementById('err');
+    const btn = document.getElementById('submitBtn');
+
+    function showErr(msg) {
+      errBox.textContent = msg;
+      errBox.classList.add('show');
+    }
+    function clearErr() {
+      errBox.textContent = '';
+      errBox.classList.remove('show');
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearErr();
+      btn.disabled = true;
+      btn.textContent = 'Signing in…';
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        showErr(error.message);
+        btn.disabled = false;
+        btn.textContent = 'Sign in';
+        return;
+      }
+
+      window.location.replace('./');
+    });
+  </script>
+</body>
+</html>
