@@ -21,10 +21,14 @@ if not DB_PASSWORD or not SERVICE_KEY:
     print("ERROR: set SUPABASE_DB_PASSWORD and SUPABASE_SERVICE_KEY env vars")
     sys.exit(1)
 
+# Passwords loaded from env vars to avoid committing secrets:
+#   USER_FINNLEY_PWD, USER_MATTHEW_PWD, USER_HUDSON_PWD
+# (Real passwords for these accounts live in the Obsidian vault — see
+# Lead Getter/Slingshot/Credentials.md)
 USERS = [
     {
         "email": "finndoggblox@gmail.com",
-        "password": "Slingshot-Finnley-2026!",
+        "password": os.environ.get("USER_FINNLEY_PWD", ""),
         "name": "Finnley",
         "role": "Lead",
         "initials": "FO",
@@ -32,7 +36,7 @@ USERS = [
     },
     {
         "email": "finndoggblox+matthew@gmail.com",
-        "password": "Slingshot-Matthew-2026!",
+        "password": os.environ.get("USER_MATTHEW_PWD", ""),
         "name": "Matthew",
         "role": "Team",
         "initials": "MA",
@@ -40,13 +44,17 @@ USERS = [
     },
     {
         "email": "finndoggblox+hudson@gmail.com",
-        "password": "Slingshot-Hudson-2026!",
+        "password": os.environ.get("USER_HUDSON_PWD", ""),
         "name": "Hudson",
         "role": "Team",
         "initials": "HU",
         "grad": "av-hudson",
     },
 ]
+for _u in USERS:
+    if not _u["password"]:
+        print(f"ERROR: missing env var for {_u['name']} password (USER_{_u['name'].upper()}_PWD)")
+        sys.exit(1)
 
 def create_user(email, password):
     """Create user via Supabase admin API. Returns user_id."""
