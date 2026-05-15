@@ -177,6 +177,32 @@
     font-style: italic;
   }
 
+  .nav-item { user-select: none; }
+
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    color: var(--text);
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+    max-width: 380px;
+    text-align: center;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
   .user-meta { line-height: 1.2; min-width: 0; flex: 1; }
   .user-name { font-weight: 600; font-size: 12.5px; }
   .user-role { color: var(--text-3); font-size: 11px; }
@@ -968,19 +994,19 @@
   </div>
 
   <nav class="nav">
-    <div class="nav-item active"><span class="ic">⌂</span> Today</div>
-    <div class="nav-item"><span class="ic">✓</span> All tasks <span class="badge">11</span></div>
-    <div class="nav-item"><span class="ic">⏱</span> Inbox <span class="badge">3</span></div>
+    <div class="nav-item active" data-view="today"><span class="ic">⌂</span> Today</div>
+    <div class="nav-item" data-view="all-tasks"><span class="ic">✓</span> All tasks <span class="badge" id="nav-badge-all">—</span></div>
+    <div class="nav-item" data-view="inbox"><span class="ic">⏱</span> Inbox <span class="badge">soon</span></div>
 
     <div class="nav-section">Production</div>
-    <div class="nav-item"><span class="ic">🎮</span> Games <span class="badge">0 / 1</span></div>
-    <div class="nav-item"><span class="ic">📡</span> Trends</div>
-    <div class="nav-item"><span class="ic">🛠</span> Framework</div>
+    <div class="nav-item" data-view="games"><span class="ic">🎮</span> Games <span class="badge">soon</span></div>
+    <div class="nav-item" data-view="trends"><span class="ic">📡</span> Trends</div>
+    <div class="nav-item" data-view="framework"><span class="ic">🛠</span> Framework <span class="badge">soon</span></div>
 
     <div class="nav-section">Org</div>
-    <div class="nav-item"><span class="ic">👥</span> Team</div>
-    <div class="nav-item"><span class="ic">$</span> Payouts</div>
-    <div class="nav-item"><span class="ic">⚙</span> Settings</div>
+    <div class="nav-item" data-view="team"><span class="ic">👥</span> Team <span class="badge">soon</span></div>
+    <div class="nav-item" data-view="payouts"><span class="ic">$</span> Payouts <span class="badge">soon</span></div>
+    <div class="nav-item" data-view="settings"><span class="ic">⚙</span> Settings</div>
   </nav>
 
   <div class="sidebar-footer">
@@ -1441,6 +1467,9 @@
   const SUPABASE_ANON = 'sb_publishable_1HpO0iiNQbss2h2mOS-2VA_Qz75pkC7';
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
 
+  // Module state for nav re-rendering
+  const state = { me: null, tasks: [], view: 'today' };
+
   // -------- auth gate --------
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
@@ -1506,9 +1535,80 @@
       console.error('Could not load tasks:', tasksErr);
     }
 
-    renderTasks(tasks || [], me);
-    updateKPIs(tasks || []);
-    updateSubtitle(tasks || [], me);
+    // Store state for nav re-rendering
+    state.me = me;
+    state.tasks = tasks || [];
+    state.view = 'today';
+
+    renderTasks(state.tasks, me, 'today');
+    updateKPIs(state.tasks);
+    updateSubtitle(state.tasks, me);
+
+    // Wire sidebar nav clicks
+    const openCount = state.tasks.filter(t => t.status !== 'done').length;
+    const allCount = state.tasks.length;
+    const allBadge = document.getElementById('nav-badge-all');
+    if (allBadge) allBadge.textContent = allCount;
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => handleNavClick(item));
+    });
+  }
+
+  function handleNavClick(item) {
+    const view = item.dataset.view;
+    // Visual: move active marker
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+
+    switch (view) {
+      case 'today':
+        state.view = 'today';
+        renderTasks(state.tasks, state.me, 'today');
+        document.getElementById('page-eyebrow').textContent = 'Today';
+        updateSubtitle(state.tasks, state.me);
+        break;
+      case 'all-tasks':
+        state.view = 'all-tasks';
+        renderTasks(state.tasks, state.me, 'all-tasks');
+        document.getElementById('page-eyebrow').textContent = 'All tasks';
+        document.getElementById('greeting').textContent = `All tasks · ${state.me.name}`;
+        document.getElementById('page-sub').textContent =
+          `${state.tasks.length} total · ${state.tasks.filter(t => t.status === 'done').length} done · ${state.tasks.filter(t => t.status !== 'done').length} open`;
+        break;
+      case 'trends':
+        window.location.href = './trend.html';
+        break;
+      case 'settings':
+        showToast('Settings page coming soon. Use the Sign out button up top.');
+        // Revert active
+        setTimeout(() => {
+          document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+          document.querySelector('[data-view="' + state.view + '"]').classList.add('active');
+        }, 200);
+        break;
+      default:
+        showToast(`"${item.textContent.trim().split(/\s+/).slice(1).join(' ').replace(/soon/i, '').trim()}" view is coming soon`);
+        // Revert active marker back to current view
+        setTimeout(() => {
+          document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+          document.querySelector('[data-view="' + state.view + '"]').classList.add('active');
+        }, 200);
+    }
+  }
+
+  function showToast(msg) {
+    let toast = document.getElementById('app-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'app-toast';
+      toast.className = 'toast';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toast._hideTimer);
+    toast._hideTimer = setTimeout(() => toast.classList.remove('show'), 2600);
   }
 
   function updateSubtitle(tasks, me) {
@@ -1543,21 +1643,25 @@
     document.getElementById('kpi-later').textContent = later;
   }
 
-  function renderTasks(tasks, me) {
+  function renderTasks(tasks, me, view = 'today') {
     const list = document.getElementById('task-list');
     while (list.firstChild) list.removeChild(list.firstChild);
 
-    const open = tasks.filter(t => t.status !== 'done');
-    if (open.length === 0) {
+    const visible = view === 'all-tasks'
+      ? tasks
+      : tasks.filter(t => t.status !== 'done');
+
+    if (visible.length === 0) {
       const empty = document.createElement('div');
       empty.className = 'task-empty';
-      empty.textContent = "You're all caught up. No open tasks.";
+      empty.textContent = view === 'all-tasks'
+        ? "No tasks at all yet."
+        : "You're all caught up. No open tasks.";
       list.appendChild(empty);
     } else {
-      for (const t of open) list.appendChild(renderTaskRow(t, me));
+      for (const t of visible) list.appendChild(renderTaskRow(t, me));
     }
 
-    // Always allow adding a task
     const addRow = document.createElement('div');
     addRow.className = 'add-task-row';
     addRow.textContent = '+ Add task';
