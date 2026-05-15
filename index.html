@@ -1340,15 +1340,15 @@
   </div>
 
   <div class="chat-messages" id="chatMessages">
-    <div class="chat-msg ai">Hey, I'm Slingshot AI. I can rundown your tasks, today's plan, what's trending, and how Game 1 is tracking. Ask me anything.</div>
-    <div class="chat-msg system">⚠ Demo mode — answers are pre-programmed. Wire the backend to get real Claude responses.</div>
+    <div class="chat-msg ai">Hey, I'm the Slingshot guide. Right now I'm scoped to two things: (1) helping you find your tasks, and (2) showing you what to ask the real Claude once we wire it up next. Tap a button below or just type a question.</div>
+    <div class="chat-msg system">⚠ Demo mode — for everything else, wait for the Claude backend (coming soon)</div>
   </div>
 
   <div class="chat-quick">
-    <button class="chat-quick-btn">What should I do today?</button>
-    <button class="chat-quick-btn">Show my tasks</button>
-    <button class="chat-quick-btn">What's trending?</button>
-    <button class="chat-quick-btn">How's Game 1?</button>
+    <button class="chat-quick-btn">What are my tasks?</button>
+    <button class="chat-quick-btn">What's blocking me?</button>
+    <button class="chat-quick-btn">What can I ask Claude?</button>
+    <button class="chat-quick-btn">Help</button>
   </div>
 
   <div class="chat-input-wrap">
@@ -1406,31 +1406,35 @@
 
   function mockReply(query){
     const q = query.toLowerCase();
-    if (q.match(/task|todo|do today|what should/)) {
-      return "3 tasks open for you today:\n\n1. 🔴 Sign 3-way revenue split (overdue 2 days, blocking)\n2. 🟡 Set up Roblox Premium + DevEx ID (today)\n3. 🟡 Approve Sara's Game 1 concept doc (today)\n\nStart with #1 — no Robux can flow until it's signed.";
+
+    // Tasks — primary scope
+    if (q.match(/my task|what.*task|task.*today|task.*open|to.?do|what should i do|what do i do/)) {
+      return "Your 3 open tasks today:\n\n🔴 Finnley — Sign the 3-way revenue split agreement (overdue 2 days, blocking all payouts)\n🟡 Finnley — Set up Roblox Premium + verified ID for DevEx\n🟡 Finnley — Approve Sara's Game 1 concept doc\n\nMarcus & Sara have their own task lists — check the dashboard's Team panel to see counts.";
     }
-    if (q.match(/trend|trending|hot|peak/)) {
-      return "Once tomorrow's YouTube + TikTok pipeline lands, I'll show live pre-peak trends here. Manual scan right now flags: AI Goblin Cores, Lava Run challenges, Tower Tycoon variants — those have the strongest pre-peak velocity per Sara's last sweep.";
+    if (q.match(/block|stuck|wait/)) {
+      return "What's blocking you right now:\n\n• The revenue-split agreement (overdue 2d) — until it's signed, no Robux can flow to anyone's account. Solve this first.\n• Concept doc approval — Marcus can't start Game 1 build until you sign off on Sara's doc.\n\nNothing else is blocking. The framework work on Marcus's side and IP rubric on Sara's side are unblocked and progressing.";
     }
-    if (q.match(/robux|money|earn|revenue|usd|paid|payout/)) {
-      return "R$ 0 today — no games shipped yet. DevEx unlocks at R$ 30,000 (≈ $105 USD). Game 1 ships Friday if framework lands by Wed. That's the unlock event.";
+    if (q.match(/marcus.*task|sara.*task|team.*task|who.*work|what.*marcus|what.*sara/)) {
+      return "Task assignments right now:\n\n👤 Marcus — Framework systems (currency ✓, datastore ✓, shop, anti-grief, anti-exploit, leaderboard)\n👤 Sara — Trend rubric, IP vetting checklist, source ~50 character models, 5 candidate trend pitches\n👤 Finnley (you) — Revenue split agreement, DevEx setup, concept doc approval\n\nTap the Team panel on the dashboard for live status.";
     }
-    if (q.match(/^(hi|hey|hello|sup|yo|wassup)/)) {
-      return "Hey Finnley. I can talk tasks, trends, revenue, team status, or Game 1 progress. What do you need?";
+
+    // Guide to the real Claude
+    if (q.match(/claude|real ai|live ai|backend|when.*wire|once.*wire|ask.*ai|prompt|when.*live/)) {
+      return "Once we wire the real Claude in (next task), here's what's worth asking it:\n\n📡 For trend research:\n• \"Generate 3 game concept seeds from the [trend name] data\"\n• \"Vet the IP risk on [trend] — check trademark + DMCA history\"\n• \"What audience is driving [trend] and how does it map to Roblox?\"\n\n🛠 For building (Marcus):\n• \"Write the Luau script for a currency system with DataStore persistence\"\n• \"Review my code in /framework/shop.lua for race conditions\"\n• \"Debug this Studio error: [paste]\"\n\n🎯 For strategy (Finnley):\n• \"Pressure-test the 2-week cadence plan\"\n• \"Should we ship Game 2 from a current trend or wait for the next wave?\"\n• \"Review this concept doc — what's missing?\"\n\n🎨 For assets (Sara):\n• \"Draft a thumbnail brief for [game] with 6 variants\"\n• \"Write a Roblox experience description that wins the algorithm\"";
     }
-    if (q.match(/marcus|sara|team|crew/)) {
-      return "Marcus is on framework systems — just shipped the currency + DataStore module 5h ago. Sara just closed out the IP-risk vetting checklist 12 min ago. Both online and unblocked.";
+
+    // Greeting
+    if (q.match(/^(hi|hey|hello|sup|yo|wassup|whats up)/)) {
+      return "Hey. I'm scoped to two things right now: your tasks, and what to ask the real Claude when it's live. Tap a button or ask away.";
     }
-    if (q.match(/game 1|speed run|lava|first game/)) {
-      return "Speed Run Lava — Day 4 of 14. Framework: 2/6 systems done. Art: 0/40 (Sara starts today). Ships Friday IF framework hits 6/6 by Wed EOD. Currently 28% complete overall.";
+
+    // Help
+    if (q.match(/help|what can|how do you|what do you/)) {
+      return "I can help with two things only (for now):\n\n1. Your tasks — try:\n   • \"What are my tasks?\"\n   • \"What's blocking me?\"\n   • \"What is Marcus / Sara working on?\"\n\n2. Real Claude usage — try:\n   • \"What can I ask Claude?\"\n   • \"What should I prompt Claude with?\"\n\nFor anything else (trending data, revenue, Game 1 progress, etc.), wait for the Claude backend — coming next.";
     }
-    if (q.match(/help|what can|how do/)) {
-      return "Things to ask me:\n• What should I do today?\n• Show my tasks\n• What's trending?\n• How's Game 1 doing?\n• How much have we made?\n• What's Marcus / Sara working on?\n\nAfter backend wires up I'll answer anything about the business.";
-    }
-    if (q.match(/^(bye|gtg|brb|cya)/)) {
-      return "Catch you later. I'll be here when you log back in.";
-    }
-    return "Mock-mode: I'd actually answer that once the backend's wired to Claude. Try \"what should I do today?\" or \"show my tasks\" — those have proper canned replies for the demo.";
+
+    // Out-of-scope — redirect cleanly
+    return "I'm scoped to tasks + Claude-prompt guidance only right now. Try:\n\n• \"What are my tasks?\"\n• \"What's blocking me?\"\n• \"What can I ask Claude?\"\n\nFor anything else — trends, revenue, game progress, design feedback — wait for the Claude backend (next build task).";
   }
 
   function send(){
