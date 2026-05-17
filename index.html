@@ -79,6 +79,12 @@
   nav.primary-nav a.active { color: var(--accent); background: var(--accent-bg); }
   .top-right { display: flex; align-items: center; gap: 8px; }
   .top-date { color: var(--text-muted); font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em; padding-right: 6px; }
+  .spend-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border: 1px solid var(--accent-dim); background: var(--accent-bg); color: var(--accent); border-radius: 14px; font-family: var(--mono); font-size: 11.5px; cursor: pointer; transition: border-color .12s, background .12s; }
+  .spend-pill:hover { border-color: var(--accent); background: rgba(255,107,61,0.18); }
+  .spend-pill.warn { border-color: var(--yellow); color: var(--yellow); background: rgba(255,194,51,0.10); }
+  .spend-pill.alert { border-color: var(--red); color: var(--red); background: var(--red-bg); animation: pulse 1.6s ease-in-out infinite; }
+  .spend-pill .spend-icon { font-weight: 700; }
+  .spend-pill .spend-label { color: var(--text-muted); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; }
   .top-btn { background: var(--panel-2); border: 1px solid var(--border-strong); color: var(--text-dim); border-radius: 5px; height: 30px; width: 30px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
   .top-btn:hover { color: var(--text); border-color: var(--accent-dim); }
   .user-chip { display: flex; align-items: center; gap: 8px; background: var(--panel-2); border: 1px solid var(--border-strong); padding: 4px 10px 4px 4px; border-radius: 20px; font-size: 12px; cursor: pointer; }
@@ -98,6 +104,30 @@
   .panel-head .count { color: var(--text); }
   .panel-head .right { display: flex; gap: 8px; align-items: center; color: var(--text-muted); }
   .panel-body { padding: 12px 14px; }
+
+  /* SPEND PANEL */
+  .spend-panel { border: 1px solid var(--border); border-radius: 10px; background: var(--panel-2); overflow: hidden; }
+  .spend-head { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: linear-gradient(90deg, rgba(255,107,61,0.12), transparent); border-bottom: 1px solid var(--border); }
+  .spend-head-title { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; color: var(--accent); text-transform: uppercase; }
+  .spend-head-meta { font-family: var(--mono); font-size: 10.5px; color: var(--text-dim); letter-spacing: 0.08em; }
+  .spend-body { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 16px 18px; }
+  .spend-big { display: flex; flex-direction: column; gap: 4px; }
+  .spend-big-num { font-family: var(--mono); font-size: 36px; font-weight: 700; color: var(--accent); letter-spacing: -0.01em; line-height: 1; }
+  .spend-big.alt .spend-big-num { color: var(--violet-soft); font-size: 30px; }
+  .spend-big-label { font-family: var(--mono); font-size: 10px; color: var(--text-dim); letter-spacing: 0.14em; text-transform: uppercase; }
+  .spend-breakdown { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; padding: 0 18px 16px; }
+  .spend-cell { padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-deep); }
+  .spend-cell.research { border-left: 2px solid var(--accent); }
+  .spend-cell.builder  { border-left: 2px solid var(--violet); }
+  .spend-cell.planner  { border-left: 2px solid var(--blue); }
+  .spend-cell.maker    { border-left: 2px solid var(--green); }
+  .spend-cell.overseer { border-left: 2px solid var(--yellow); }
+  .spend-cell.qa       { border-left: 2px solid var(--red); }
+  .spend-cell-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px; }
+  .spend-cell-cost  { font-family: var(--mono); font-size: 14px; font-weight: 700; color: var(--text); }
+  .spend-cell-meta  { font-family: var(--mono); font-size: 9.5px; color: var(--text-muted); margin-top: 2px; letter-spacing: 0.06em; }
+  @media (max-width: 1100px) { .spend-breakdown { grid-template-columns: repeat(3, 1fr); } .spend-body { grid-template-columns: 1fr; } }
+  @media (max-width: 700px)  { .spend-breakdown { grid-template-columns: repeat(2, 1fr); } }
 
   /* COMMAND CENTER */
   .cmd-grid { display: grid; gap: 14px; }
@@ -531,6 +561,11 @@
       <a href="#/settings" data-route="settings">Settings</a>
     </nav>
     <div class="top-right">
+      <span class="spend-pill" id="spendPill" title="API spend today — click for breakdown">
+        <span class="spend-icon">$</span>
+        <span id="spendValue">—</span>
+        <span class="spend-label">today</span>
+      </span>
       <span class="top-date" id="top-date">—</span>
       <button class="top-btn" id="btnTerminal" title="Open Terminal · ask Claude">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -570,6 +605,24 @@
             </div>
             <div class="burn-num"><span id="burnTokens">0</span><span class="of">/ 20M</span></div>
           </div>
+        </div>
+
+        <div class="spend-panel">
+          <div class="spend-head">
+            <span class="spend-head-title">API SPEND</span>
+            <span class="spend-head-meta" id="spendTotalRuns">— runs</span>
+          </div>
+          <div class="spend-body">
+            <div class="spend-big">
+              <span class="spend-big-num" id="spendBigToday">$0.00</span>
+              <span class="spend-big-label">today (Claude logs)</span>
+            </div>
+            <div class="spend-big alt">
+              <span class="spend-big-num" id="spendBigAgents">$0.00</span>
+              <span class="spend-big-label">total agent output (est)</span>
+            </div>
+          </div>
+          <div class="spend-breakdown" id="spendBreakdown"></div>
         </div>
 
         <div class="kpis">
@@ -1073,6 +1126,7 @@
     chat: [], chatBusy: false,
     filters: { status: 'open', assignee: 'me', priority: 'all' },
     editingTaskId: null,
+    spend: null,
   };
 
   const $ = (id) => document.getElementById(id);
@@ -1145,7 +1199,7 @@
     $('settingsRefresh').addEventListener('click', () => { pullMetrics(); pullSkills(); pullInbox(); pullSlingshot(); });
     $('btnRefresh').addEventListener('click', () => { pullMetrics(); pullSlingshot(); pullInbox(); });
 
-    await Promise.all([pullSlingshot(), pullMetrics(), pullSkills(), pullInbox()]);
+    await Promise.all([pullSlingshot(), pullMetrics(), pullSkills(), pullInbox(), pullSpend()]);
 
     $('cmdSkills').addEventListener('click', onSkillClick);
     document.querySelectorAll('[data-trigger-skill]').forEach(node => {
@@ -1200,6 +1254,7 @@
 
     setInterval(pullMetrics, 30_000);
     setInterval(pullInbox, 60_000);
+    setInterval(pullSpend, 30_000);
   }
 
   async function logout() {
@@ -1226,6 +1281,45 @@
     if (page === 'skills')    { renderSkillList(); renderInboxList(); }
     if (page === 'settings')  refreshSettings();
     if (page === 'command-center') { renderCommandCenter(); renderCmdTaskList(); }
+  }
+
+  // ===== SPEND =====
+  async function pullSpend() {
+    try {
+      const r = await fetch(`${HELPER_BASE}/spend`);
+      if (!r.ok) throw new Error();
+      state.spend = await r.json();
+    } catch { state.spend = null; }
+    renderSpend();
+  }
+  function renderSpend() {
+    const todayCost = state.metrics?.cost_today ?? 0;
+    const pill = $('spendPill');
+    const val = $('spendValue');
+    if (val) val.textContent = '$' + todayCost.toFixed(2);
+    if (pill) {
+      pill.classList.toggle('warn', todayCost >= 10 && todayCost < 25);
+      pill.classList.toggle('alert', todayCost >= 25);
+    }
+    // Big numbers on Command Center
+    const big = $('spendBigToday');
+    if (big) big.textContent = '$' + todayCost.toFixed(2);
+    if (state.spend) {
+      $('spendBigAgents').textContent = '$' + state.spend.total_cost_est.toFixed(2);
+      $('spendTotalRuns').textContent = `${state.spend.total_runs} runs · ~${formatK(state.spend.total_tokens_est)} tokens`;
+      const target = $('spendBreakdown');
+      clear(target);
+      const order = ['research', 'builder', 'planner', 'maker', 'overseer', 'qa'];
+      for (const name of order) {
+        const a = state.spend.agents[name];
+        if (!a) continue;
+        const cell = el('div', { class: 'spend-cell ' + name });
+        cell.appendChild(el('div', { class: 'spend-cell-label' }, a.label || name));
+        cell.appendChild(el('div', { class: 'spend-cell-cost' }, '$' + a.cost_est.toFixed(2)));
+        cell.appendChild(el('div', { class: 'spend-cell-meta' }, `${a.runs} runs · ${formatK(a.tokens_out)} tok`));
+        target.appendChild(cell);
+      }
+    }
   }
 
   // ===== METRICS =====
@@ -1256,6 +1350,7 @@
 
     $('kpiSessions').textContent = m.sessions_today ?? '—';
     $('kpiCost').textContent = `$${(m.cost_today ?? 0).toFixed(2)} used`;
+    renderSpend();
     $('kpiSling').textContent = state.tasks.filter(t => t.status !== 'done').length || 0;
     const overdue = state.tasks.filter(t => t.status !== 'done' && t.due_date && new Date(t.due_date) < new Date(new Date().toDateString())).length;
     $('kpiSlingDelta').textContent = overdue ? `${overdue} overdue` : 'all on track';
