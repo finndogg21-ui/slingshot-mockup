@@ -239,6 +239,37 @@
   .activity-body b { color: var(--accent-soft); }
   .activity-time { color: var(--text-muted); font-size: 11px; margin-top: 2px; font-family: var(--mono); letter-spacing: 0.04em; }
 
+  /* TIMELINE */
+  .tl-chart { position: relative; }
+  .tl-header { display: grid; grid-template-columns: 180px repeat(7, 1fr); align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
+  .tl-header .tl-h-cell { padding: 6px 8px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; color: var(--text-dim); text-transform: uppercase; border-left: 1px dashed var(--border); }
+  .tl-header .tl-h-cell:first-of-type { border-left: none; }
+  .tl-header .tl-h-cell.today { color: var(--accent); }
+  .tl-row { display: grid; grid-template-columns: 180px repeat(7, 1fr); align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); position: relative; min-height: 36px; }
+  .tl-row:last-child { border-bottom: none; }
+  .tl-row .tl-label { padding: 0 8px; font-size: 12px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+  .tl-row .tl-avatar { width: 18px; height: 18px; border-radius: 50%; font-size: 8px; flex-shrink: 0; }
+  .tl-row .tl-cell { border-left: 1px dashed var(--border); height: 100%; }
+  .tl-row .tl-cell:first-of-type { border-left: none; }
+  .tl-bar { position: absolute; height: 22px; top: 50%; transform: translateY(-50%); border-radius: 4px; padding: 0 8px; font-size: 11px; line-height: 22px; color: #fff; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: filter .12s, transform .12s; }
+  .tl-bar:hover { filter: brightness(1.15); transform: translateY(-50%) scale(1.02); }
+  .tl-bar.assignee-finnley { background: linear-gradient(135deg, #ff6b3d, #c43c14); }
+  .tl-bar.assignee-matthew { background: linear-gradient(135deg, #5b8eff, #2c4fbe); }
+  .tl-bar.assignee-hudson  { background: linear-gradient(135deg, #8a6dff, #5e3ed4); }
+  .tl-bar.assignee-other   { background: linear-gradient(135deg, #5a5046, #2c2620); }
+  .tl-bar.done { opacity: 0.4; text-decoration: line-through; }
+  .tl-bar.overdue { box-shadow: 0 0 0 1px var(--red), 0 0 6px rgba(255,82,82,0.4); }
+  .tl-empty { padding: 28px 14px; text-align: center; color: var(--text-muted); font-size: 12.5px; }
+  .tl-assignee-block { padding: 10px 0; }
+  .tl-assignee-block + .tl-assignee-block { border-top: 1px solid var(--border); }
+  .tl-assignee-head { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
+  .tl-assignee-head .tl-avatar { width: 18px; height: 18px; font-size: 8px; }
+  .tl-assignee-task { display: flex; justify-content: space-between; padding: 4px 0 4px 26px; font-size: 12.5px; cursor: pointer; }
+  .tl-assignee-task:hover { color: var(--accent-soft); }
+  .tl-assignee-task .tl-due { font-family: var(--mono); font-size: 10.5px; color: var(--text-muted); letter-spacing: 0.06em; }
+  .tl-assignee-task .tl-due.overdue { color: var(--red); }
+  .tl-assignee-task .tl-due.today { color: var(--accent); }
+
   /* RESEARCH */
   .trend-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin-bottom: 22px; }
   .trend-card { border: 1px solid var(--border); border-radius: 10px; padding: 14px; background: var(--panel-2); cursor: pointer; transition: border-color .12s; }
@@ -305,6 +336,33 @@
   .game-progress-label { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--text-dim); margin-top: 4px; }
   .game-empty { border: 1px dashed var(--border-strong); border-radius: 8px; padding: 24px; text-align: center; color: var(--text-muted); }
   .game-empty .plus { font-size: 28px; margin-bottom: 8px; color: var(--text-fade); }
+
+  /* MODAL (create task / create game / generic) */
+  .modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.65); display: none; align-items: center; justify-content: center; z-index: 65; padding: 24px; }
+  .modal-mask.show { display: flex; }
+  .modal { background: var(--panel); border: 1px solid var(--border-strong); border-radius: 12px; max-width: 520px; width: 100%; max-height: 88vh; display: grid; grid-template-rows: auto 1fr auto; }
+  .modal-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+  .modal-title { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; color: var(--accent); text-transform: uppercase; }
+  .modal-close { background: transparent; border: 1px solid var(--border-strong); color: var(--text-dim); border-radius: 4px; padding: 4px 10px; font-family: var(--mono); font-size: 10.5px; cursor: pointer; }
+  .modal-body { padding: 18px; overflow: auto; display: grid; gap: 12px; }
+  .modal-body label { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px; }
+  .modal-body input, .modal-body select, .modal-body textarea { width: 100%; background: var(--bg-deep); border: 1px solid var(--border-strong); color: var(--text); font-family: var(--sans); font-size: 13.5px; padding: 8px 10px; border-radius: 5px; }
+  .modal-body textarea { resize: vertical; min-height: 70px; font-family: var(--sans); }
+  .modal-body input:focus, .modal-body select:focus, .modal-body textarea:focus { outline: none; border-color: var(--accent); }
+  .modal-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .modal-foot { padding: 12px 18px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; background: var(--panel-2); border-radius: 0 0 12px 12px; }
+  .modal-err { color: var(--red); font-size: 12px; padding: 6px 0; display: none; }
+  .modal-err.show { display: block; }
+
+  /* FILTER POPOVER */
+  .filter-pop { position: absolute; top: 100%; right: 0; margin-top: 6px; background: var(--panel); border: 1px solid var(--border-strong); border-radius: 8px; padding: 12px 14px; min-width: 240px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); z-index: 25; display: none; }
+  .filter-pop.show { display: block; }
+  .filter-group { margin-bottom: 10px; }
+  .filter-group:last-child { margin-bottom: 0; }
+  .filter-group .label { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.14em; color: var(--text-dim); text-transform: uppercase; margin-bottom: 6px; }
+  .filter-chip { display: inline-block; padding: 4px 10px; border: 1px solid var(--border); background: var(--panel-2); color: var(--text-dim); border-radius: 14px; font-size: 11.5px; margin: 2px 4px 2px 0; cursor: pointer; user-select: none; }
+  .filter-chip.active { color: var(--accent); border-color: var(--accent-dim); background: var(--accent-bg); }
+  .filter-anchor { position: relative; }
 
   /* TERMINAL DRAWER */
   .term-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; z-index: 65; }
@@ -415,6 +473,7 @@
     <nav class="primary-nav" id="primary-nav">
       <a href="#/" data-route="command-center">Command Center</a>
       <a href="#/slingshot" data-route="slingshot">Slingshot</a>
+      <a href="#/timeline" data-route="timeline">Timeline</a>
       <a href="#/research" data-route="research">Research</a>
       <a href="#/skills" data-route="skills">Skills</a>
       <a href="#/settings" data-route="settings">Settings</a>
@@ -548,8 +607,24 @@
           <div class="sling-sub" id="slingSub">Loading your tasks…</div>
         </div>
         <div class="sling-actions">
-          <button class="btn ghost">Filter</button>
-          <button class="btn primary">+ New task</button>
+          <div class="filter-anchor">
+            <button class="btn ghost" id="slingFilterBtn">Filter <span id="slingFilterCount" style="color: var(--accent); margin-left: 4px;"></span></button>
+            <div class="filter-pop" id="slingFilterPop">
+              <div class="filter-group">
+                <div class="label">Status</div>
+                <div id="filterStatus"></div>
+              </div>
+              <div class="filter-group">
+                <div class="label">Assignee</div>
+                <div id="filterAssignee"></div>
+              </div>
+              <div class="filter-group">
+                <div class="label">Priority</div>
+                <div id="filterPriority"></div>
+              </div>
+            </div>
+          </div>
+          <button class="btn primary" id="btnNewTask">+ New task</button>
         </div>
       </div>
       <div class="sub-tabs" id="slingTabs">
@@ -618,7 +693,7 @@
 
       <div id="slingGamesView" style="display: none;">
         <div class="panel">
-          <div class="panel-head"><span>Games · 0 live · 1 in dev</span><span class="right"><button class="btn ghost" style="font-size:11px; padding:4px 10px;">+ New game</button></span></div>
+          <div class="panel-head"><span>Games · 0 live · 1 in dev</span><span class="right"><button class="btn ghost" id="btnNewGame" style="font-size:11px; padding:4px 10px;">+ New game</button></span></div>
           <div class="panel-body">
             <div class="game-grid">
               <div class="game-card">
@@ -644,6 +719,33 @@
       </div>
     </div>
 
+    <div class="page" data-page="timeline">
+      <div class="sling-head">
+        <div>
+          <div class="sling-eyebrow">Timeline</div>
+          <div class="sling-title">Next 7 days</div>
+          <div class="sling-sub">All Slingshot tasks with due dates, plotted by assignee. Click a bar to open the task.</div>
+        </div>
+        <div class="sling-actions">
+          <button class="btn" id="btnTimelineToday">Today</button>
+          <button class="btn primary" id="btnTimelineNewTask">+ New task</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <span>7-day Gantt</span>
+          <span class="right"><span class="count" id="tlCount">—</span> tasks</span>
+        </div>
+        <div class="panel-body">
+          <div id="tlChart" class="tl-chart"></div>
+        </div>
+      </div>
+      <div class="panel" style="margin-top: 14px;">
+        <div class="panel-head"><span>By assignee · this week</span></div>
+        <div class="panel-body" id="tlByAssignee"></div>
+      </div>
+    </div>
+
     <div class="page" data-page="research">
       <div class="sling-head">
         <div>
@@ -655,32 +757,7 @@
           <button class="btn" data-trigger-skill="deep-research">Run Deep Research</button>
         </div>
       </div>
-      <div class="trend-grid">
-        <div class="trend-card">
-          <div class="trend-name">AI Goblin Cores</div>
-          <div class="trend-velocity vel-pre">● PRE-PEAK · velocity ↑</div>
-          <div class="trend-desc">AI-generated grotesque-cute goblin characters in moody underground habitats. No clear IP holder.</div>
-          <div class="trend-meta"><span>TikTok: 4.2M weekly</span><span class="ip-low">IP risk: LOW</span></div>
-        </div>
-        <div class="trend-card">
-          <div class="trend-name">Italian Brainrot 2.0</div>
-          <div class="trend-velocity vel-peak">● PEAKING · plateau</div>
-          <div class="trend-desc">Sequel wave. Tralalero Tralala derivatives. Built-in audio remix culture.</div>
-          <div class="trend-meta"><span>TikTok: 12M weekly</span><span class="ip-low">IP risk: LOW</span></div>
-        </div>
-        <div class="trend-card">
-          <div class="trend-name">Plush Survival</div>
-          <div class="trend-velocity vel-pre">● PRE-PEAK · velocity ↑</div>
-          <div class="trend-desc">Cozy survival with plushie aesthetic. Hugging mechanic is the hook. Pinterest-driven.</div>
-          <div class="trend-meta"><span>Pinterest: spiking</span><span class="ip-med">IP risk: MED</span></div>
-        </div>
-        <div class="trend-card">
-          <div class="trend-name">Skibidi Toilet</div>
-          <div class="trend-velocity vel-post">● POST-PEAK · DECLINING</div>
-          <div class="trend-desc">DaFuq!?Boom! actively DMCAs derivatives. Avoid.</div>
-          <div class="trend-meta"><span>YouTube: still high</span><span class="ip-high">IP risk: HIGH</span></div>
-        </div>
-      </div>
+      <div class="trend-grid" id="trendGrid"></div>
       <div class="panel">
         <div class="panel-head"><span>Recent research runs</span><span class="right"><span class="count" id="researchCount">—</span></span></div>
         <div class="panel-body inbox-rows" id="researchInbox"><div class="task-loading">Loading…</div></div>
@@ -776,6 +853,103 @@
   </div>
 </div>
 
+<!-- TASK MODAL -->
+<div class="modal-mask" id="taskModalMask">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title" id="taskModalTitle">New task</span>
+      <button class="modal-close" id="taskModalClose">close</button>
+    </div>
+    <div class="modal-body">
+      <div>
+        <label for="tmTitle">Title *</label>
+        <input id="tmTitle" type="text" maxlength="200" placeholder="e.g. Approve creature aesthetic" />
+      </div>
+      <div>
+        <label for="tmOutcome">Outcome (what the player or team sees)</label>
+        <textarea id="tmOutcome" placeholder="e.g. Aesthetic direction locked; mesh-generation prompts can start"></textarea>
+      </div>
+      <div class="modal-row">
+        <div>
+          <label for="tmAssignee">Assignee</label>
+          <select id="tmAssignee"></select>
+        </div>
+        <div>
+          <label for="tmStatus">Status</label>
+          <select id="tmStatus">
+            <option value="todo">To do</option>
+            <option value="in_progress">In progress</option>
+            <option value="in_review">In review</option>
+            <option value="blocked">Blocked</option>
+            <option value="done">Done</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-row">
+        <div>
+          <label for="tmPriority">Priority</label>
+          <select id="tmPriority">
+            <option value="urgent">Urgent</option>
+            <option value="high">High</option>
+            <option value="medium" selected>Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+        <div>
+          <label for="tmDue">Due date</label>
+          <input id="tmDue" type="date" />
+        </div>
+      </div>
+      <div class="modal-err" id="tmErr"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost" id="tmCancel">Cancel</button>
+      <button class="btn primary" id="tmSave">Save task</button>
+    </div>
+  </div>
+</div>
+
+<!-- GAME MODAL -->
+<div class="modal-mask" id="gameModalMask">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title">New game</span>
+      <button class="modal-close" id="gameModalClose">close</button>
+    </div>
+    <div class="modal-body">
+      <div>
+        <label for="gmName">Name *</label>
+        <input id="gmName" type="text" maxlength="60" placeholder="e.g. PACK RNG" />
+      </div>
+      <div>
+        <label for="gmGenre">Genre</label>
+        <input id="gmGenre" type="text" maxlength="80" placeholder="e.g. RNG pack-opener / collector" />
+      </div>
+      <div class="modal-row">
+        <div>
+          <label for="gmStatus">Status</label>
+          <select id="gmStatus">
+            <option value="planning">Planning</option>
+            <option value="in_dev" selected>In dev</option>
+            <option value="qa">QA</option>
+            <option value="live">Live</option>
+            <option value="shelved">Shelved</option>
+          </select>
+        </div>
+        <div>
+          <label for="gmShipsOn">Ships on</label>
+          <input id="gmShipsOn" type="date" />
+        </div>
+      </div>
+      <div class="modal-err" id="gmErr"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost" id="gmCancel">Cancel</button>
+      <button class="btn primary" id="gmSave">Save game</button>
+    </div>
+  </div>
+</div>
+
 <div class="term-mask" id="termMask"></div>
 <aside class="term-drawer" id="termDrawer" aria-hidden="true">
   <div class="term-head">
@@ -816,7 +990,13 @@
   let HELPER_BASE = localStorage.getItem('aos.helperBase') || DEFAULT_HELPER;
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
 
-  const state = { me: null, tasks: [], team: [], metrics: null, metricsLastPull: null, skills: [], inbox: [], route: { page: 'command-center', sub: null }, serverUp: null, chat: [], chatBusy: false };
+  const state = {
+    me: null, tasks: [], team: [], metrics: null, metricsLastPull: null,
+    skills: [], inbox: [], route: { page: 'command-center', sub: null }, serverUp: null,
+    chat: [], chatBusy: false,
+    filters: { status: 'open', assignee: 'me', priority: 'all' },
+    editingTaskId: null,
+  };
 
   const $ = (id) => document.getElementById(id);
 
@@ -898,6 +1078,30 @@
     $('viewerMask').addEventListener('click', (e) => { if (e.target === $('viewerMask')) closeViewer(); });
     $('viewerClose').addEventListener('click', closeViewer);
 
+    // Task + game modals + filter
+    $('btnNewTask').addEventListener('click', () => openTaskModal());
+    $('btnTimelineNewTask')?.addEventListener('click', () => openTaskModal());
+    $('btnTimelineToday')?.addEventListener('click', () => { location.hash = '#/timeline'; renderTimeline(); });
+    $('taskModalClose').addEventListener('click', closeTaskModal);
+    $('tmCancel').addEventListener('click', closeTaskModal);
+    $('tmSave').addEventListener('click', saveTask);
+    $('taskModalMask').addEventListener('click', (e) => { if (e.target === $('taskModalMask')) closeTaskModal(); });
+
+    $('btnNewGame')?.addEventListener('click', openGameModal);
+    $('gameModalClose').addEventListener('click', closeGameModal);
+    $('gmCancel').addEventListener('click', closeGameModal);
+    $('gmSave').addEventListener('click', saveGame);
+    $('gameModalMask').addEventListener('click', (e) => { if (e.target === $('gameModalMask')) closeGameModal(); });
+
+    $('slingFilterBtn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      $('slingFilterPop').classList.toggle('show');
+    });
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.filter-anchor')) $('slingFilterPop').classList.remove('show');
+    });
+    renderFilterChips();
+
     // Terminal drawer
     $('btnTerminal').addEventListener('click', openTerminal);
     $('termClose').addEventListener('click', closeTerminal);
@@ -926,14 +1130,15 @@
     const parts = raw.split('/').filter(Boolean);
     let page = parts[0] || 'command-center';
     const sub = parts[1] || null;
-    if (!['command-center','slingshot','research','skills','settings'].includes(page)) page = 'command-center';
+    if (!['command-center','slingshot','timeline','research','skills','settings'].includes(page)) page = 'command-center';
     state.route = { page, sub };
 
     document.querySelectorAll('.primary-nav a').forEach(a => a.classList.toggle('active', a.dataset.route === page));
     document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.dataset.page === page));
 
     if (page === 'slingshot') applySlingSub(sub || 'today');
-    if (page === 'research')  renderResearchInbox();
+    if (page === 'timeline')  renderTimeline();
+    if (page === 'research')  { renderTrends(); renderResearchInbox(); }
     if (page === 'skills')    { renderSkillList(); renderInboxList(); }
     if (page === 'settings')  refreshSettings();
     if (page === 'command-center') { renderCommandCenter(); renderCmdTaskList(); }
@@ -1033,29 +1238,46 @@
   }
 
   function renderSlingTasks(filter) {
-    const me = state.me; if (!me) return;
-    const myTasks = state.tasks.filter(t => t.assignee_id === me.id);
-    const visible = filter === 'all' ? myTasks : myTasks.filter(t => t.status !== 'done');
+    if (!state.me) return;
+    // Sub-tab "all" widens default scope: include done + everyone (overridable by filter chips)
+    let pool = state.tasks.slice();
+    if (filter !== 'all') {
+      pool = pool.filter(t => t.assignee_id === state.me.id);
+    }
+    const visible = applyFilters(pool);
 
     $('slingTaskCount').textContent = visible.length;
-    $('slingFilterLabel').textContent = filter === 'all' ? 'all' : 'today';
+    $('slingFilterLabel').textContent = describeFilters();
     $('slingSub').textContent = visible.length === 0
-      ? "You're all caught up. Nice."
-      : `${visible.length} task${visible.length === 1 ? '' : 's'} on your plate`;
+      ? "Nothing matches these filters."
+      : `${visible.length} task${visible.length === 1 ? '' : 's'} shown`;
 
     const list = $('slingTaskList');
     clear(list);
     if (visible.length === 0) {
-      list.appendChild(el('div', { class: 'task-empty' }, filter === 'all' ? 'No tasks at all yet.' : "You're all caught up. No open tasks."));
+      list.appendChild(el('div', { class: 'task-empty' }, 'No tasks match. Adjust filters or click + Add task.'));
     } else {
       for (const t of visible) list.appendChild(renderTaskRow(t));
     }
-    const add = el('div', { class: 'add-task-row' }, '+ Add task');
+    const add = el('div', { class: 'add-task-row', onClick: () => openTaskModal() }, '+ Add task');
     list.appendChild(add);
+  }
+  function describeFilters() {
+    const f = state.filters;
+    return [
+      f.status === 'open' ? 'open' : f.status,
+      f.assignee === 'me' ? 'mine' : f.assignee === 'all' ? 'everyone' : (state.team.find(m => m.id === f.assignee)?.name || f.assignee),
+      f.priority === 'all' ? null : f.priority,
+    ].filter(Boolean).join(' · ');
   }
 
   function renderTaskRow(t) {
-    const row = el('div', { class: 'task' + (t.status === 'done' ? ' done' : ''), dataset: { taskId: t.id } });
+    const row = el('div', {
+      class: 'task' + (t.status === 'done' ? ' done' : ''),
+      dataset: { taskId: t.id },
+      style: 'cursor: pointer;',
+      onClick: (e) => { if (!e.target.closest('.check')) openTaskModal(t.id); },
+    });
 
     const check = el('div', { class: 'check', onClick: async (e) => {
       e.stopPropagation();
@@ -1259,6 +1481,70 @@
     return row;
   }
 
+  // Static seed list for now (no `trends` table yet — see project memory).
+  // Click "Research" on any card → fires the deep-research skill with the trend pre-filled.
+  const TRENDS = [
+    { name: 'AI Goblin Cores',    velocity: 'pre',  velocity_label: 'PRE-PEAK · velocity ↑', desc: 'AI-generated grotesque-cute goblin characters in moody underground habitats. No clear IP holder.', source: 'TikTok: 4.2M weekly', ip: 'low' },
+    { name: 'Italian Brainrot 2.0', velocity: 'peak', velocity_label: 'PEAKING · plateau', desc: 'Sequel wave. Tralalero Tralala derivatives. Built-in audio remix culture.', source: 'TikTok: 12M weekly', ip: 'low' },
+    { name: 'Plush Survival',     velocity: 'pre',  velocity_label: 'PRE-PEAK · velocity ↑', desc: 'Cozy survival with plushie aesthetic. Hugging mechanic is the hook. Pinterest-driven.', source: 'Pinterest: spiking', ip: 'med' },
+    { name: 'AI Smiski-likes',    velocity: 'pre',  velocity_label: 'PRE-PEAK · velocity ↑', desc: 'AI-generated tiny collectible figures with personality + lore. Surfacing on collector TikTok.', source: 'TikTok: 1.8M weekly', ip: 'med' },
+    { name: 'Liminal Pool',       velocity: 'peak', velocity_label: 'PEAKING · plateau', desc: 'Liminal-space pool aesthetic. Strong Roblox horror crossover potential.', source: 'YouTube shorts: high', ip: 'low' },
+    { name: 'Skibidi Toilet',     velocity: 'post', velocity_label: 'POST-PEAK · DECLINING', desc: 'DaFuq!?Boom! actively DMCAs derivatives. Avoid.', source: 'YouTube: still high', ip: 'high' },
+  ];
+
+  function renderTrends() {
+    const grid = $('trendGrid');
+    if (!grid) return;
+    clear(grid);
+    for (const t of TRENDS) {
+      const card = el('div', { class: 'trend-card', onClick: (e) => {
+        if (!e.target.closest('button')) showToast(t.name, t.desc, `IP risk: ${t.ip.toUpperCase()} · ${t.source}`, 4500);
+      }});
+      card.appendChild(el('div', { class: 'trend-name' }, t.name));
+      card.appendChild(el('div', { class: 'trend-velocity vel-' + t.velocity }, '● ' + t.velocity_label));
+      card.appendChild(el('div', { class: 'trend-desc' }, t.desc));
+      const meta = el('div', { class: 'trend-meta' });
+      meta.appendChild(el('span', {}, t.source));
+      meta.appendChild(el('span', { class: 'ip-' + t.ip }, 'IP risk: ' + t.ip.toUpperCase()));
+      card.appendChild(meta);
+      const btn = el('button', {
+        class: 'btn',
+        style: 'margin-top: 12px; width: 100%; font-size: 11px;',
+        onClick: (e) => { e.stopPropagation(); researchTrend(t); },
+      }, 'Run Deep Research →');
+      card.appendChild(btn);
+      grid.appendChild(card);
+    }
+  }
+  async function researchTrend(trend) {
+    // Compose a research prompt and dispatch the deep-research skill.
+    // The helper picks up the prompt file; we pass extra context via the existing /chat
+    // endpoint (which goes through claude -p with system prompt).
+    showToast('RESEARCHING TREND', trend.name, 'Asking Claude…', 0);
+    try {
+      const q = `Research the Roblox trend "${trend.name}". Current read: ${trend.desc} (velocity: ${trend.velocity_label}, IP risk: ${trend.ip}, source signal: ${trend.source}). Pull live data via WebSearch / WebFetch. Output: (1) 7-day velocity confirmation or refutation, (2) updated IP risk after 5-point check (trademark, character-creator, audio, DMCA history, Roblox moderation), (3) game-concept seeds (3 distinct gameplay loops that fit a 2-week build), (4) confidence + what would change your answer. Keep under 400 words.`;
+      const r = await fetch(`${HELPER_BASE}/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: q, history: [] }),
+      });
+      const data = r.ok ? await r.json() : null;
+      if (data?.ok) {
+        // Open the Terminal drawer with the result instead of a toast
+        openTerminal();
+        renderChatMessage('user', `Research "${trend.name}"`);
+        renderChatMessage('assistant', data.response);
+        state.chat.push({ role: 'user', content: `Research "${trend.name}"` });
+        state.chat.push({ role: 'assistant', content: data.response });
+        showToast('TREND RESEARCH DONE', trend.name, 'See Terminal for the writeup.', 4000);
+      } else {
+        showToast('RESEARCH FAILED', trend.name, data?.error || 'helper offline', 4500);
+      }
+    } catch (_) {
+      showToast('RESEARCH OFFLINE', trend.name, 'Helper not reachable. Check Settings → Helper URL.', 5000);
+    }
+  }
+
   function renderResearchInbox() {
     const target = $('researchInbox');
     if (!target) return;
@@ -1427,6 +1713,280 @@
     $('setUser').textContent = state.me?.name || '—';
     $('setTeamId').textContent = state.me?.id ? state.me.id.slice(0, 8) + '…' : '—';
     $('setTaskCount').textContent = state.tasks.length;
+  }
+
+  // ===== TIMELINE =====
+  function renderTimeline() {
+    const chart = $('tlChart');
+    const byA = $('tlByAssignee');
+    if (!chart) return;
+    clear(chart); clear(byA);
+
+    // Build 7-day window starting today
+    const today = new Date(); today.setHours(0,0,0,0);
+    const days = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(today); d.setDate(today.getDate() + i); return d;
+    });
+    const dayKey = (d) => d.toISOString().slice(0, 10);
+    const todayKey = dayKey(today);
+    const lastKey = dayKey(days[6]);
+
+    // Header
+    const header = el('div', { class: 'tl-header' });
+    header.appendChild(el('div', { class: 'tl-h-cell' }, 'Task'));
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const dows = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    for (const d of days) {
+      const cell = el('div', { class: 'tl-h-cell' + (dayKey(d) === todayKey ? ' today' : '') }, `${dows[d.getDay()]} ${months[d.getMonth()]} ${d.getDate()}`);
+      header.appendChild(cell);
+    }
+    chart.appendChild(header);
+
+    // Filter tasks: ones with due_date in the window OR overdue (still due)
+    const inWindow = state.tasks.filter(t => {
+      if (!t.due_date) return false;
+      return t.due_date <= lastKey;
+    }).filter(t => t.status !== 'done' || (t.due_date >= todayKey)).sort((a,b) => (a.due_date || '').localeCompare(b.due_date || ''));
+
+    $('tlCount').textContent = inWindow.length;
+    if (inWindow.length === 0) {
+      chart.appendChild(el('div', { class: 'tl-empty' }, 'No tasks with due dates in the next 7 days. Click "+ New task" to add one.'));
+      byA.appendChild(el('div', { class: 'tl-empty' }, 'Nothing to plot.'));
+      return;
+    }
+
+    for (const t of inWindow) {
+      const row = el('div', { class: 'tl-row', dataset: { taskId: t.id } });
+      // Label cell with avatar + title
+      const m = state.team.find(x => x.id === t.assignee_id);
+      const grad = m?.avatar_grad || 'av-finnley';
+      const initials = m?.avatar_initials || '??';
+      const label = el('div', { class: 'tl-label' });
+      label.appendChild(el('div', { class: 'avatar tl-avatar ' + grad }, initials));
+      label.appendChild(el('span', { title: t.title }, t.title.length > 22 ? t.title.slice(0, 22) + '…' : t.title));
+      row.appendChild(label);
+      // 7 grid cells (visual guides)
+      for (let i = 0; i < 7; i++) row.appendChild(el('div', { class: 'tl-cell' }));
+
+      // Compute bar position
+      const dueDate = new Date(t.due_date + 'T00:00:00');
+      const startDate = t.created_at ? new Date(t.created_at) : today;
+      startDate.setHours(0,0,0,0);
+      const visualStart = startDate < today ? today : startDate;
+      const dayMs = 1000 * 60 * 60 * 24;
+      const startIdx = Math.max(0, Math.round((visualStart - today) / dayMs));
+      const endIdx = Math.min(6, Math.max(startIdx, Math.round((dueDate - today) / dayMs)));
+      const overdue = dueDate < today && t.status !== 'done';
+
+      // Grid: 180px label col + 7 equal cells. Compute bar left/width as %.
+      const labelWidth = 180;
+      const totalWidth = row.offsetWidth || 1000; // fallback before mount
+      // Use percentage of (1 - labelWidth/totalWidth) — actually simpler: use CSS grid columns via left% relative to grid total.
+      // Compute as percentage of full row (label + 7 cells).
+      // label = 180px. Cells share remainder. We'll express bar as left/right in % approximations via JS at paint time.
+      // Use requestAnimationFrame to compute after layout.
+      const bar = el('div', {
+        class: 'tl-bar ' + assigneeClass(m) + (t.status === 'done' ? ' done' : '') + (overdue ? ' overdue' : ''),
+        title: `${t.title} · ${t.priority} · due ${t.due_date}${overdue ? ' (overdue)' : ''}`,
+        onClick: (e) => { e.stopPropagation(); openTaskModal(t.id); },
+      }, t.title.length > 30 ? t.title.slice(0, 30) + '…' : t.title);
+      row.appendChild(bar);
+      chart.appendChild(row);
+
+      // Position the bar after the row is laid out
+      requestAnimationFrame(() => {
+        const cells = row.querySelectorAll('.tl-cell');
+        if (!cells.length) return;
+        const first = cells[0].getBoundingClientRect();
+        const last = cells[6].getBoundingClientRect();
+        const rowRect = row.getBoundingClientRect();
+        const cellWidth = (last.right - first.left) / 7;
+        const leftPx = first.left - rowRect.left + startIdx * cellWidth + 4;
+        const widthPx = (endIdx - startIdx + 1) * cellWidth - 8;
+        bar.style.left = leftPx + 'px';
+        bar.style.width = Math.max(40, widthPx) + 'px';
+      });
+    }
+
+    // By-assignee block
+    const grouped = {};
+    for (const t of inWindow) {
+      const aid = t.assignee_id || 'unassigned';
+      (grouped[aid] = grouped[aid] || []).push(t);
+    }
+    for (const aid of Object.keys(grouped)) {
+      const m = state.team.find(x => x.id === aid);
+      const block = el('div', { class: 'tl-assignee-block' });
+      const head = el('div', { class: 'tl-assignee-head' });
+      head.appendChild(el('div', { class: 'avatar tl-avatar ' + (m?.avatar_grad || 'av-finnley') }, m?.avatar_initials || '??'));
+      head.appendChild(el('span', {}, (m?.name || 'Unassigned') + ' · ' + grouped[aid].length + ' tasks'));
+      block.appendChild(head);
+      for (const t of grouped[aid]) {
+        const dueClass = (() => {
+          if (!t.due_date) return '';
+          if (t.due_date < todayKey) return 'overdue';
+          if (t.due_date === todayKey) return 'today';
+          return '';
+        })();
+        const taskRow = el('div', { class: 'tl-assignee-task', onClick: () => openTaskModal(t.id) });
+        taskRow.appendChild(el('span', {}, t.title));
+        const dueLabel = t.due_date ? (dueClass === 'today' ? 'TODAY' : t.due_date) : '—';
+        taskRow.appendChild(el('span', { class: 'tl-due ' + dueClass }, dueLabel));
+        block.appendChild(taskRow);
+      }
+      byA.appendChild(block);
+    }
+  }
+  function assigneeClass(m) {
+    if (!m) return 'assignee-other';
+    if ((m.avatar_grad || '').includes('finnley')) return 'assignee-finnley';
+    if ((m.avatar_grad || '').includes('matthew')) return 'assignee-matthew';
+    if ((m.avatar_grad || '').includes('hudson'))  return 'assignee-hudson';
+    return 'assignee-other';
+  }
+
+  // ===== FILTERS =====
+  function renderFilterChips() {
+    const f = state.filters;
+    const sets = {
+      filterStatus:   [['open','Open'],['all','All'],['todo','To do'],['in_progress','In prog'],['in_review','Review'],['blocked','Blocked'],['done','Done']],
+      filterAssignee: [['me','Me'],['all','All'],['unassigned','Unassigned']].concat(state.team.map(m => [m.id, m.name])),
+      filterPriority: [['all','All'],['urgent','Urgent'],['high','High'],['medium','Med'],['low','Low']],
+    };
+    const fieldKey = { filterStatus: 'status', filterAssignee: 'assignee', filterPriority: 'priority' };
+    for (const [container, options] of Object.entries(sets)) {
+      const target = $(container);
+      if (!target) continue;
+      clear(target);
+      const key = fieldKey[container];
+      for (const [val, label] of options) {
+        const chip = el('div', { class: 'filter-chip' + (f[key] === val ? ' active' : '') }, label);
+        chip.addEventListener('click', () => {
+          state.filters[key] = val;
+          renderFilterChips();
+          renderSlingTasks(state.route.sub === 'all' ? 'all' : 'today');
+          updateFilterCount();
+        });
+        target.appendChild(chip);
+      }
+    }
+    updateFilterCount();
+  }
+  function updateFilterCount() {
+    const f = state.filters;
+    const defaults = { status: 'open', assignee: 'me', priority: 'all' };
+    const dirty = Object.keys(defaults).filter(k => f[k] !== defaults[k]).length;
+    const span = $('slingFilterCount');
+    if (span) span.textContent = dirty ? '· ' + dirty : '';
+  }
+  function applyFilters(tasks) {
+    const f = state.filters;
+    return tasks.filter(t => {
+      if (f.status === 'open' && t.status === 'done') return false;
+      if (f.status !== 'open' && f.status !== 'all' && t.status !== f.status) return false;
+      if (f.assignee === 'me' && t.assignee_id !== state.me?.id) return false;
+      else if (f.assignee === 'unassigned' && t.assignee_id) return false;
+      else if (f.assignee !== 'me' && f.assignee !== 'all' && f.assignee !== 'unassigned' && t.assignee_id !== f.assignee) return false;
+      if (f.priority !== 'all' && t.priority !== f.priority) return false;
+      return true;
+    });
+  }
+
+  // ===== TASK MODAL =====
+  function openTaskModal(taskId) {
+    state.editingTaskId = taskId || null;
+    const t = taskId ? state.tasks.find(x => x.id === taskId) : null;
+
+    // Populate assignee dropdown from team
+    const sel = $('tmAssignee');
+    clear(sel);
+    for (const m of state.team) {
+      const opt = el('option', { value: m.id }, m.name + (m.id === state.me?.id ? ' (you)' : ''));
+      if (t ? t.assignee_id === m.id : m.id === state.me?.id) opt.selected = true;
+      sel.appendChild(opt);
+    }
+
+    $('taskModalTitle').textContent = t ? 'Edit task' : 'New task';
+    $('tmTitle').value = t?.title || '';
+    $('tmOutcome').value = t?.outcome || '';
+    $('tmStatus').value = t?.status || 'todo';
+    $('tmPriority').value = t?.priority || 'medium';
+    $('tmDue').value = t?.due_date || '';
+    $('tmErr').classList.remove('show');
+    $('taskModalMask').classList.add('show');
+    setTimeout(() => $('tmTitle').focus(), 50);
+  }
+  function closeTaskModal() {
+    $('taskModalMask').classList.remove('show');
+    state.editingTaskId = null;
+  }
+  async function saveTask() {
+    const title = $('tmTitle').value.trim();
+    if (!title) { showModalErr('tmErr', 'Title is required.'); return; }
+    const row = {
+      title,
+      outcome: $('tmOutcome').value.trim() || null,
+      assignee_id: $('tmAssignee').value,
+      status: $('tmStatus').value,
+      priority: $('tmPriority').value,
+      due_date: $('tmDue').value || null,
+    };
+    $('tmSave').disabled = true;
+    try {
+      if (state.editingTaskId) {
+        const { error } = await supabase.from('tasks').update(row).eq('id', state.editingTaskId);
+        if (error) throw error;
+        showToast('TASK UPDATED', title, '', 2500);
+      } else {
+        const { error } = await supabase.from('tasks').insert([{ ...row, created_by: state.me?.id }]);
+        if (error) throw error;
+        showToast('TASK CREATED', title, '', 2500);
+      }
+      closeTaskModal();
+      await pullSlingshot();
+    } catch (e) {
+      showModalErr('tmErr', e.message || 'Save failed');
+    } finally {
+      $('tmSave').disabled = false;
+    }
+  }
+  function showModalErr(id, msg) {
+    const el = $(id);
+    el.textContent = msg;
+    el.classList.add('show');
+  }
+
+  // ===== GAME MODAL =====
+  function openGameModal() {
+    $('gmName').value = '';
+    $('gmGenre').value = '';
+    $('gmStatus').value = 'in_dev';
+    $('gmShipsOn').value = '';
+    $('gmErr').classList.remove('show');
+    $('gameModalMask').classList.add('show');
+    setTimeout(() => $('gmName').focus(), 50);
+  }
+  function closeGameModal() { $('gameModalMask').classList.remove('show'); }
+  async function saveGame() {
+    const name = $('gmName').value.trim();
+    if (!name) { showModalErr('gmErr', 'Name is required.'); return; }
+    const row = {
+      name,
+      genre: $('gmGenre').value.trim() || null,
+      status: $('gmStatus').value,
+      ships_on: $('gmShipsOn').value || null,
+    };
+    $('gmSave').disabled = true;
+    try {
+      const { error } = await supabase.from('games').insert([row]);
+      if (error) throw error;
+      showToast('GAME CREATED', name, '', 2500);
+      closeGameModal();
+    } catch (e) {
+      showModalErr('gmErr', e.message || 'Save failed');
+    } finally {
+      $('gmSave').disabled = false;
+    }
   }
 
   // ===== TERMINAL / CHAT =====
