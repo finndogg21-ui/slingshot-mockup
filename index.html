@@ -306,6 +306,46 @@
   .game-empty { border: 1px dashed var(--border-strong); border-radius: 8px; padding: 24px; text-align: center; color: var(--text-muted); }
   .game-empty .plus { font-size: 28px; margin-bottom: 8px; color: var(--text-fade); }
 
+  /* TERMINAL DRAWER */
+  .term-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; z-index: 65; }
+  .term-mask.show { display: block; }
+  .term-drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 480px; max-width: 96vw; background: var(--bg-deep); border-left: 1px solid var(--border-strong); display: flex; flex-direction: column; transform: translateX(110%); transition: transform .22s ease-out; z-index: 66; box-shadow: -16px 0 40px rgba(0,0,0,0.5); }
+  .term-drawer.show { transform: translateX(0); }
+  .term-head { padding: 12px 14px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--panel); }
+  .term-title { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); display: flex; align-items: center; gap: 8px; }
+  .term-title::before { content: '~'; color: var(--accent); }
+  .term-title .stat { color: var(--text-dim); font-size: 9.5px; letter-spacing: 0.14em; margin-left: 6px; }
+  .term-close { background: transparent; border: 1px solid var(--border-strong); color: var(--text-dim); border-radius: 4px; padding: 3px 9px; font-family: var(--mono); font-size: 10px; cursor: pointer; }
+  .term-close:hover { color: var(--text); border-color: var(--accent-dim); }
+  .term-body { flex: 1; overflow-y: auto; padding: 14px 16px; font-family: var(--mono); font-size: 12.5px; line-height: 1.55; color: var(--text); }
+  .term-msg { margin-bottom: 14px; }
+  .term-msg .prompt { color: var(--accent); margin-right: 6px; }
+  .term-msg.user .prompt::before { content: '$ '; }
+  .term-msg.assistant .prompt::before { content: '> '; color: var(--violet-soft); }
+  .term-msg.assistant .prompt { color: var(--violet-soft); }
+  .term-msg .text { white-space: pre-wrap; word-wrap: break-word; }
+  .term-msg.assistant .text h1, .term-msg.assistant .text h2, .term-msg.assistant .text h3 { font-size: 13px; color: var(--accent-soft); margin: 6px 0 4px; font-family: var(--sans); }
+  .term-msg.assistant .text p { margin: 4px 0; }
+  .term-msg.assistant .text ul, .term-msg.assistant .text ol { padding-left: 20px; margin: 4px 0; }
+  .term-msg.assistant .text code { background: rgba(255,107,61,0.10); padding: 1px 4px; border-radius: 2px; color: var(--accent-soft); }
+  .term-msg.assistant .text pre { background: rgba(0,0,0,0.4); border: 1px solid var(--border); padding: 8px; border-radius: 4px; overflow-x: auto; margin: 6px 0; }
+  .term-msg.assistant .text strong { color: var(--text); font-weight: 700; }
+  .term-msg.error .prompt { color: var(--red); }
+  .term-msg.error .text { color: var(--red); }
+  .term-thinking { display: inline-flex; gap: 4px; padding: 4px 8px; color: var(--violet-soft); font-family: var(--mono); font-size: 12px; }
+  .term-thinking span { animation: blink 1.4s infinite; }
+  .term-thinking span:nth-child(2) { animation-delay: 0.2s; }
+  .term-thinking span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink { 0%, 80%, 100% { opacity: 0.3; } 40% { opacity: 1; } }
+  .term-input-wrap { padding: 10px 12px; border-top: 1px solid var(--border); background: var(--panel); display: flex; gap: 8px; align-items: flex-end; }
+  .term-input { flex: 1; background: var(--bg-deep); border: 1px solid var(--border-strong); border-radius: 4px; color: var(--text); font-family: var(--mono); font-size: 12.5px; padding: 8px 10px; resize: none; max-height: 120px; line-height: 1.4; }
+  .term-input:focus { outline: none; border-color: var(--accent); }
+  .term-send { background: var(--accent); border: none; color: #fff; padding: 8px 12px; border-radius: 4px; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; cursor: pointer; }
+  .term-send:disabled { opacity: 0.5; cursor: not-allowed; }
+  .term-send:hover:not(:disabled) { background: var(--accent-soft); }
+  .term-empty { color: var(--text-muted); font-family: var(--mono); font-size: 12px; padding: 14px 0; }
+  .term-empty .hint { color: var(--text-dim); }
+
   /* TOAST */
   .toast { position: fixed; right: 22px; bottom: 22px; width: 380px; max-width: 92vw; border: 1px solid var(--border-strong); background: var(--panel); border-radius: 8px; padding: 12px 14px; box-shadow: 0 16px 40px rgba(0,0,0,0.6); transform: translateY(120%); opacity: 0; transition: transform .25s, opacity .25s; z-index: 70; }
   .toast.show { transform: translateY(0); opacity: 1; }
@@ -381,6 +421,11 @@
     </nav>
     <div class="top-right">
       <span class="top-date" id="top-date">—</span>
+      <button class="top-btn" id="btnTerminal" title="Open Terminal · ask Claude">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>
+        </svg>
+      </button>
       <button class="top-btn" id="btnRefresh" title="Refresh data">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
@@ -678,7 +723,18 @@
         <div class="panel">
           <div class="panel-head"><span>Helper server</span></div>
           <div class="panel-body">
-            <div class="setting-item"><span class="setting-key">URL</span><span class="setting-val">http://127.0.0.1:8765</span></div>
+            <div class="setting-item" style="flex-direction: column; align-items: stretch; gap: 6px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="setting-key">Helper URL</span>
+                <span class="setting-val" id="setHelperUrl">—</span>
+              </div>
+              <div style="display: flex; gap: 6px;">
+                <input id="helperUrlInput" type="text" placeholder="http://127.0.0.1:8765" style="flex: 1; background: var(--bg-deep); border: 1px solid var(--border-strong); color: var(--text); font-family: var(--mono); font-size: 11.5px; padding: 6px 8px; border-radius: 4px;" />
+                <button class="btn" id="helperUrlSave" style="font-size: 11px; padding: 4px 10px;">Save</button>
+                <button class="btn ghost" id="helperUrlReset" style="font-size: 11px; padding: 4px 10px;">Reset</button>
+              </div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Default: <code style="background: var(--panel-3); padding: 1px 4px; border-radius: 2px; font-family: var(--mono);">http://127.0.0.1:8765</code>. Friends on Finnley's Tailscale should set this to his tailnet hostname (e.g. <code style="background: var(--panel-3); padding: 1px 4px; border-radius: 2px; font-family: var(--mono);">http://desktop-78urcea:8765</code>).</div>
+            </div>
             <div class="setting-item"><span class="setting-key">Health</span><span class="setting-val" id="setHealth">—</span></div>
             <div class="setting-item"><span class="setting-key">Last metrics pull</span><span class="setting-val" id="setMetricsPull">—</span></div>
             <div class="setting-item"><span class="setting-key">Skills available</span><span class="setting-val" id="setSkillCount">—</span></div>
@@ -720,6 +776,30 @@
   </div>
 </div>
 
+<div class="term-mask" id="termMask"></div>
+<aside class="term-drawer" id="termDrawer" aria-hidden="true">
+  <div class="term-head">
+    <div class="term-title">
+      <span>terminal · claude</span>
+      <span class="stat" id="termStat">idle</span>
+    </div>
+    <button class="term-close" id="termClose">close</button>
+  </div>
+  <div class="term-body" id="termBody">
+    <div class="term-empty">
+      <div>~ ask anything about Slingshot, Roblox, or your work.</div>
+      <div class="hint">examples:</div>
+      <div class="hint">$ what's my top priority today?</div>
+      <div class="hint">$ explain DataStores in Roblox in 3 sentences</div>
+      <div class="hint">$ what trends are hottest for the youth roblox demo this week?</div>
+    </div>
+  </div>
+  <div class="term-input-wrap">
+    <textarea class="term-input" id="termInput" rows="1" placeholder="ask claude…  (Enter to send · Shift+Enter for newline)"></textarea>
+    <button class="term-send" id="termSend">SEND</button>
+  </div>
+</aside>
+
 <div class="toast" id="toast">
   <div class="head" id="toastHead">RUNNING</div>
   <div class="body" id="toastBody">—</div>
@@ -731,10 +811,12 @@
 
   const SUPABASE_URL  = 'https://euhymovdzlzzxukwcuqe.supabase.co';
   const SUPABASE_ANON = 'sb_publishable_1HpO0iiNQbss2h2mOS-2VA_Qz75pkC7';
-  const HELPER_BASE   = 'http://127.0.0.1:8765';
+  const DEFAULT_HELPER = 'http://127.0.0.1:8765';
+  // Configurable so friends can point at Finnley's Tailscale hostname.
+  let HELPER_BASE = localStorage.getItem('aos.helperBase') || DEFAULT_HELPER;
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
 
-  const state = { me: null, tasks: [], team: [], metrics: null, metricsLastPull: null, skills: [], inbox: [], route: { page: 'command-center', sub: null }, serverUp: null };
+  const state = { me: null, tasks: [], team: [], metrics: null, metricsLastPull: null, skills: [], inbox: [], route: { page: 'command-center', sub: null }, serverUp: null, chat: [], chatBusy: false };
 
   const $ = (id) => document.getElementById(id);
 
@@ -815,6 +897,16 @@
 
     $('viewerMask').addEventListener('click', (e) => { if (e.target === $('viewerMask')) closeViewer(); });
     $('viewerClose').addEventListener('click', closeViewer);
+
+    // Terminal drawer
+    $('btnTerminal').addEventListener('click', openTerminal);
+    $('termClose').addEventListener('click', closeTerminal);
+    $('termMask').addEventListener('click', closeTerminal);
+    $('termSend').addEventListener('click', sendChat);
+    $('termInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+    });
+    $('termInput').addEventListener('input', autosize);
 
     window.addEventListener('hashchange', applyRoute);
     applyRoute();
@@ -1286,6 +1378,35 @@
 
   // ===== SETTINGS =====
   async function refreshSettings() {
+    $('setHelperUrl').textContent = HELPER_BASE;
+    $('helperUrlInput').value = HELPER_BASE;
+    // Wire save/reset (idempotent — clears prior listeners by replacing them)
+    const saveBtn = $('helperUrlSave');
+    const resetBtn = $('helperUrlReset');
+    if (!saveBtn.dataset.wired) {
+      saveBtn.dataset.wired = '1';
+      saveBtn.addEventListener('click', () => {
+        const v = $('helperUrlInput').value.trim().replace(/\/$/, '');
+        if (!/^https?:\/\//.test(v)) {
+          showToast('INVALID URL', 'Must start with http:// or https://', v, 4000);
+          return;
+        }
+        HELPER_BASE = v;
+        localStorage.setItem('aos.helperBase', v);
+        showToast('HELPER URL SAVED', v, 'pulling fresh data…', 2500);
+        pullMetrics(); pullSkills(); pullInbox();
+        refreshSettings();
+      });
+      resetBtn.addEventListener('click', () => {
+        HELPER_BASE = DEFAULT_HELPER;
+        localStorage.removeItem('aos.helperBase');
+        $('helperUrlInput').value = DEFAULT_HELPER;
+        showToast('HELPER URL RESET', DEFAULT_HELPER, '', 2500);
+        pullMetrics(); pullSkills(); pullInbox();
+        refreshSettings();
+      });
+    }
+
     const setHealth = $('setHealth');
     clear(setHealth);
     try {
@@ -1306,6 +1427,115 @@
     $('setUser').textContent = state.me?.name || '—';
     $('setTeamId').textContent = state.me?.id ? state.me.id.slice(0, 8) + '…' : '—';
     $('setTaskCount').textContent = state.tasks.length;
+  }
+
+  // ===== TERMINAL / CHAT =====
+  function openTerminal() {
+    $('termMask').classList.add('show');
+    $('termDrawer').classList.add('show');
+    $('termDrawer').setAttribute('aria-hidden', 'false');
+    setTimeout(() => $('termInput').focus(), 50);
+  }
+  function closeTerminal() {
+    $('termMask').classList.remove('show');
+    $('termDrawer').classList.remove('show');
+    $('termDrawer').setAttribute('aria-hidden', 'true');
+  }
+  function autosize() {
+    const t = $('termInput');
+    t.style.height = 'auto';
+    t.style.height = Math.min(120, t.scrollHeight) + 'px';
+  }
+  function setTermStatus(label) { $('termStat').textContent = label; }
+
+  function renderChatMessage(role, content, klass) {
+    const body = $('termBody');
+    // First message: clear the empty-state hint
+    if (body.querySelector('.term-empty')) clear(body);
+
+    const wrap = el('div', { class: 'term-msg ' + (klass || role) });
+    wrap.appendChild(el('span', { class: 'prompt' }));
+    const txt = el('span', { class: 'text' });
+    if (role === 'assistant' && klass !== 'error') {
+      // Render markdown safely via the existing fragment helper
+      txt.appendChild(mdToFragment(content));
+    } else {
+      txt.textContent = content;
+    }
+    wrap.appendChild(txt);
+    body.appendChild(wrap);
+    body.scrollTop = body.scrollHeight;
+    return wrap;
+  }
+
+  function renderThinking() {
+    const body = $('termBody');
+    if (body.querySelector('.term-empty')) clear(body);
+    const wrap = el('div', { class: 'term-msg assistant', id: 'termThinking' });
+    wrap.appendChild(el('span', { class: 'prompt' }));
+    const t = el('span', { class: 'term-thinking' });
+    t.appendChild(el('span', {}, '●'));
+    t.appendChild(el('span', {}, '●'));
+    t.appendChild(el('span', {}, '●'));
+    wrap.appendChild(t);
+    body.appendChild(wrap);
+    body.scrollTop = body.scrollHeight;
+  }
+  function removeThinking() {
+    const el = document.getElementById('termThinking');
+    if (el) el.remove();
+  }
+
+  async function sendChat() {
+    if (state.chatBusy) return;
+    const input = $('termInput');
+    const msg = input.value.trim();
+    if (!msg) return;
+    input.value = '';
+    autosize();
+
+    state.chatBusy = true;
+    $('termSend').disabled = true;
+    setTermStatus('thinking…');
+    renderChatMessage('user', msg);
+
+    const history = state.chat.slice();
+    state.chat.push({ role: 'user', content: msg });
+    renderThinking();
+
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 130_000);
+      const r = await fetch(`${HELPER_BASE}/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: msg, history }),
+        signal: ctrl.signal,
+      });
+      clearTimeout(timer);
+      const data = await r.json().catch(() => null);
+      removeThinking();
+      if (r.ok && data?.ok && data.response) {
+        renderChatMessage('assistant', data.response);
+        state.chat.push({ role: 'assistant', content: data.response });
+        setTermStatus('idle');
+      } else {
+        const err = data?.error || `helper error (HTTP ${r.status})`;
+        renderChatMessage('assistant', err, 'error');
+        setTermStatus('error');
+      }
+    } catch (e) {
+      removeThinking();
+      const msg = e?.name === 'AbortError'
+        ? 'request timed out (>130s)'
+        : 'helper unreachable. set Settings → Helper URL to a reachable address (e.g. http://desktop-78urcea.tailscale.net:8765 for friends).';
+      renderChatMessage('assistant', msg, 'error');
+      setTermStatus('offline');
+    } finally {
+      state.chatBusy = false;
+      $('termSend').disabled = false;
+      $('termInput').focus();
+    }
   }
 
   // ===== TOAST + UTILS =====
