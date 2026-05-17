@@ -239,6 +239,17 @@
   .activity-body b { color: var(--accent-soft); }
   .activity-time { color: var(--text-muted); font-size: 11px; margin-top: 2px; font-family: var(--mono); letter-spacing: 0.04em; }
 
+  /* AGENT */
+  .agent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .agent-pill { display: inline-flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.18em; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border-strong); }
+  .agent-pill.running { color: var(--green); border-color: var(--green); background: rgba(108,255,141,0.07); }
+  .agent-pill.running::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 1.4s ease-in-out infinite; }
+  .agent-pill.idle { color: var(--text-dim); }
+  .agent-pill.error { color: var(--red); border-color: var(--red); background: var(--red-bg); }
+  .agent-pill.error::before { content: '●'; color: var(--red); }
+  .agent-int.active { color: var(--accent); border-color: var(--accent-dim); background: var(--accent-bg); }
+  @media (max-width: 900px) { .agent-grid { grid-template-columns: 1fr; } }
+
   /* TIMELINE */
   .tl-chart { position: relative; }
   .tl-header { display: grid; grid-template-columns: 180px repeat(7, 1fr); align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
@@ -474,6 +485,7 @@
       <a href="#/" data-route="command-center">Command Center</a>
       <a href="#/slingshot" data-route="slingshot">Slingshot</a>
       <a href="#/timeline" data-route="timeline">Timeline</a>
+      <a href="#/agent" data-route="agent">Agent</a>
       <a href="#/research" data-route="research">Research</a>
       <a href="#/skills" data-route="skills">Skills</a>
       <a href="#/settings" data-route="settings">Settings</a>
@@ -743,6 +755,85 @@
       <div class="panel" style="margin-top: 14px;">
         <div class="panel-head"><span>By assignee · this week</span></div>
         <div class="panel-body" id="tlByAssignee"></div>
+      </div>
+    </div>
+
+    <div class="page" data-page="agent">
+      <div class="sling-head">
+        <div>
+          <div class="sling-eyebrow">Research Agent</div>
+          <div class="sling-title">Always-on competitor watch</div>
+          <div class="sling-sub">A background daemon that cycles through top RNG/simulator games on Roblox and the lenses we care about (gameplay, monetization, art, retention). Each cycle calls Claude with WebSearch — fresh data every run. Findings stack into the knowledge base below.</div>
+        </div>
+        <div class="sling-actions">
+          <button class="btn" id="agentRunNow">Run cycle now</button>
+          <button class="btn primary" id="agentToggle">Start</button>
+        </div>
+      </div>
+
+      <div class="agent-grid">
+        <div class="panel agent-status-panel">
+          <div class="panel-head"><span>Status</span><span class="right"><span id="agentStatePill" class="agent-pill">—</span></span></div>
+          <div class="panel-body">
+            <div class="setting-item"><span class="setting-key">Currently researching</span><span class="setting-val" id="agentTopic">—</span></div>
+            <div class="setting-item"><span class="setting-key">Cycles completed</span><span class="setting-val" id="agentCycles">0</span></div>
+            <div class="setting-item"><span class="setting-key">Last run</span><span class="setting-val" id="agentLast">—</span></div>
+            <div class="setting-item"><span class="setting-key">Next run</span><span class="setting-val" id="agentNext">—</span></div>
+            <div class="setting-item" style="flex-direction: column; align-items: stretch; gap: 6px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="setting-key">Interval</span>
+                <span class="setting-val" id="agentInterval">30 min</span>
+              </div>
+              <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                <button class="btn ghost agent-int" data-int="600" style="font-size: 10.5px; padding: 4px 10px;">10m</button>
+                <button class="btn ghost agent-int" data-int="1800" style="font-size: 10.5px; padding: 4px 10px;">30m</button>
+                <button class="btn ghost agent-int" data-int="3600" style="font-size: 10.5px; padding: 4px 10px;">1h</button>
+                <button class="btn ghost agent-int" data-int="10800" style="font-size: 10.5px; padding: 4px 10px;">3h</button>
+              </div>
+            </div>
+            <div class="setting-item" id="agentErrItem" style="display: none;"><span class="setting-key">Last error</span><span class="setting-val" id="agentErr" style="color: var(--red);">—</span></div>
+          </div>
+        </div>
+
+        <div class="panel agent-config-panel">
+          <div class="panel-head"><span>What it's watching</span></div>
+          <div class="panel-body">
+            <div style="font-size: 12.5px; color: var(--text-dim); margin-bottom: 10px;">8 target games × 8 research lenses = 64 unique investigations before any repeat.</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+              <div>
+                <div style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--accent); text-transform: uppercase; margin-bottom: 6px;">Games</div>
+                <ul style="font-size: 12.5px; color: var(--text); padding-left: 18px; line-height: 1.65;">
+                  <li>Sol's RNG</li>
+                  <li>Pet Simulator 99</li>
+                  <li>Anime Adventures</li>
+                  <li>Steal a Brainrot</li>
+                  <li>Mining Simulator 2</li>
+                  <li>Bubble Gum Simulator</li>
+                  <li>Adopt Me!</li>
+                  <li>Blox Fruits</li>
+                </ul>
+              </div>
+              <div>
+                <div style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--accent); text-transform: uppercase; margin-bottom: 6px;">Lenses</div>
+                <ul style="font-size: 12.5px; color: var(--text); padding-left: 18px; line-height: 1.65;">
+                  <li>Core gameplay loop</li>
+                  <li>Monetization stack</li>
+                  <li>Art & asset style</li>
+                  <li>Retention mechanics</li>
+                  <li>RNG / hatch systems</li>
+                  <li>First-15-min UX</li>
+                  <li>What to copy</li>
+                  <li>What to avoid</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top: 14px;">
+        <div class="panel-head"><span>Knowledge base · cycles</span><span class="right"><span class="count" id="agentKnowCount">0</span> entries</span></div>
+        <div class="panel-body inbox-rows" id="agentKnowList"><div class="task-empty">Agent hasn't run yet. Hit Start (top right) or "Run cycle now".</div></div>
       </div>
     </div>
 
@@ -1082,6 +1173,13 @@
     $('btnNewTask').addEventListener('click', () => openTaskModal());
     $('btnTimelineNewTask')?.addEventListener('click', () => openTaskModal());
     $('btnTimelineToday')?.addEventListener('click', () => { location.hash = '#/timeline'; renderTimeline(); });
+
+    $('agentToggle')?.addEventListener('click', agentToggle);
+    $('agentRunNow')?.addEventListener('click', agentRunNow);
+    document.querySelectorAll('.agent-int').forEach(b => b.addEventListener('click', () => setAgentInterval(+b.dataset.int)));
+    // Poll agent status while we're on the agent page
+    setInterval(() => { if (state.route.page === 'agent') refreshAgent(); }, 5_000);
+    setInterval(() => { if (state.route.page === 'agent') pullAgentKnowledge(); }, 30_000);
     $('taskModalClose').addEventListener('click', closeTaskModal);
     $('tmCancel').addEventListener('click', closeTaskModal);
     $('tmSave').addEventListener('click', saveTask);
@@ -1130,7 +1228,7 @@
     const parts = raw.split('/').filter(Boolean);
     let page = parts[0] || 'command-center';
     const sub = parts[1] || null;
-    if (!['command-center','slingshot','timeline','research','skills','settings'].includes(page)) page = 'command-center';
+    if (!['command-center','slingshot','timeline','agent','research','skills','settings'].includes(page)) page = 'command-center';
     state.route = { page, sub };
 
     document.querySelectorAll('.primary-nav a').forEach(a => a.classList.toggle('active', a.dataset.route === page));
@@ -1138,6 +1236,7 @@
 
     if (page === 'slingshot') applySlingSub(sub || 'today');
     if (page === 'timeline')  renderTimeline();
+    if (page === 'agent')     { refreshAgent(); pullAgentKnowledge(); }
     if (page === 'research')  { renderTrends(); renderResearchInbox(); }
     if (page === 'skills')    { renderSkillList(); renderInboxList(); }
     if (page === 'settings')  refreshSettings();
@@ -1843,6 +1942,149 @@
     if ((m.avatar_grad || '').includes('matthew')) return 'assignee-matthew';
     if ((m.avatar_grad || '').includes('hudson'))  return 'assignee-hudson';
     return 'assignee-other';
+  }
+
+  // ===== AGENT =====
+  let agentCache = { running: false, interval_sec: 1800 };
+
+  async function refreshAgent() {
+    try {
+      const r = await fetch(`${HELPER_BASE}/agent/status`);
+      const s = await r.json();
+      agentCache = s;
+      const pill = $('agentStatePill');
+      clear(pill);
+      if (s.last_error) {
+        pill.className = 'agent-pill error';
+        pill.appendChild(text('error'));
+      } else if (s.running) {
+        pill.className = 'agent-pill running';
+        pill.appendChild(text(s.current_topic ? 'researching' : 'running'));
+      } else {
+        pill.className = 'agent-pill idle';
+        pill.appendChild(text('idle'));
+      }
+      $('agentTopic').textContent = s.current_topic || '—';
+      $('agentCycles').textContent = s.cycle_count || 0;
+      $('agentLast').textContent = s.last_run_iso ? new Date(s.last_run_iso).toLocaleString() : '—';
+      $('agentNext').textContent = s.running && s.next_run_iso ? new Date(s.next_run_iso).toLocaleTimeString() : '—';
+      $('agentInterval').textContent = fmtInterval(s.interval_sec);
+      $('agentToggle').textContent = s.running ? 'Stop' : 'Start';
+      $('agentToggle').className = 'btn ' + (s.running ? 'ghost' : 'primary');
+      document.querySelectorAll('.agent-int').forEach(b => b.classList.toggle('active', +b.dataset.int === s.interval_sec));
+      if (s.last_error) {
+        $('agentErrItem').style.display = 'flex';
+        $('agentErr').textContent = s.last_error;
+      } else {
+        $('agentErrItem').style.display = 'none';
+      }
+    } catch (_) {
+      const pill = $('agentStatePill');
+      clear(pill);
+      pill.className = 'agent-pill error';
+      pill.appendChild(text('helper offline'));
+    }
+  }
+  function fmtInterval(s) {
+    if (!s) return '—';
+    if (s < 3600) return Math.round(s / 60) + ' min';
+    return (s / 3600).toFixed(s % 3600 ? 1 : 0) + ' h';
+  }
+
+  async function agentToggle() {
+    const endpoint = agentCache.running ? '/agent/stop' : '/agent/start';
+    try {
+      const r = await fetch(`${HELPER_BASE}${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      const d = await r.json();
+      if (d.ok) {
+        showToast('AGENT ' + (agentCache.running ? 'STOPPED' : 'STARTED'), d.message, '', 2500);
+      } else {
+        showToast('AGENT', d.error || 'failed', '', 3500);
+      }
+    } catch {
+      showToast('AGENT OFFLINE', 'Helper unreachable.', 'Check Settings → Helper URL', 4000);
+    }
+    refreshAgent();
+  }
+  async function agentRunNow() {
+    try {
+      const r = await fetch(`${HELPER_BASE}/agent/run-now`, { method: 'POST' });
+      const d = await r.json();
+      if (d.ok) {
+        showToast('AGENT', 'Cycle dispatched. Output in ~30-90s.', '', 3500);
+        setTimeout(pullAgentKnowledge, 4000);
+      }
+    } catch {
+      showToast('AGENT OFFLINE', 'Helper unreachable.', '', 3500);
+    }
+  }
+  async function setAgentInterval(sec) {
+    // Stop + restart with new interval (only effective if running)
+    try {
+      if (agentCache.running) await fetch(`${HELPER_BASE}/agent/stop`, { method: 'POST' });
+      const r = await fetch(`${HELPER_BASE}/agent/start`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ interval_sec: sec }),
+      });
+      const d = await r.json();
+      if (!agentCache.running) {
+        // We weren't running; user just set the cadence but didn't ask to start. Stop again.
+        await fetch(`${HELPER_BASE}/agent/stop`, { method: 'POST' });
+        // ...but persist the interval by starting+stopping. The interval will stay in agent_state.
+      }
+      showToast('INTERVAL SET', fmtInterval(sec), '', 2000);
+    } catch {}
+    refreshAgent();
+  }
+  async function pullAgentKnowledge() {
+    try {
+      const r = await fetch(`${HELPER_BASE}/agent/knowledge`);
+      const d = await r.json();
+      const items = d.items || [];
+      $('agentKnowCount').textContent = items.length;
+      const target = $('agentKnowList');
+      clear(target);
+      if (items.length === 0) {
+        target.appendChild(el('div', { class: 'task-empty' }, 'Agent hasn\'t run yet. Hit Start (top right) or "Run cycle now".'));
+        return;
+      }
+      for (const item of items) {
+        const row = el('div', { class: 'inbox-row', onClick: () => openAgentEntry(item.name) });
+        row.appendChild(el('span', { class: 'inbox-tag' }, 'CYCLE'));
+        const mid = el('div', { style: 'min-width: 0;' });
+        mid.appendChild(el('div', { class: 'inbox-name' }, item.title || item.name));
+        mid.appendChild(el('div', { class: 'inbox-preview' }, item.preview || '—'));
+        row.appendChild(mid);
+        row.appendChild(el('span', { class: 'inbox-time' }, ageOf(item.modified_iso).toUpperCase()));
+        target.appendChild(row);
+      }
+    } catch {
+      const target = $('agentKnowList');
+      clear(target);
+      target.appendChild(el('div', { class: 'task-empty' }, 'Helper unreachable. Knowledge base cached server-side once you reconnect.'));
+    }
+  }
+  async function openAgentEntry(name) {
+    $('viewerTitle').textContent = name;
+    const body = $('viewerBody');
+    clear(body);
+    body.appendChild(el('div', { style: 'color: var(--text-muted);' }, 'Loading…'));
+    $('viewerMask').classList.add('show');
+    try {
+      const r = await fetch(`${HELPER_BASE}/agent/knowledge/${encodeURIComponent(name)}`);
+      if (!r.ok) throw new Error();
+      const md = await r.text();
+      clear(body);
+      body.appendChild(mdToFragment(md));
+    } catch {
+      clear(body);
+      body.appendChild(el('div', { style: 'color: var(--red);' }, 'Could not load entry.'));
+    }
   }
 
   // ===== FILTERS =====
