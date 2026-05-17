@@ -240,16 +240,18 @@
   .activity-time { color: var(--text-muted); font-size: 11px; margin-top: 2px; font-family: var(--mono); letter-spacing: 0.04em; }
 
   /* AGENT */
-  .agent-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .agent-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
   .agent-card { border: 1px solid var(--border); border-radius: 10px; background: var(--panel); overflow: hidden; }
   .agent-card.research { border-top: 3px solid var(--accent); }
   .agent-card.builder  { border-top: 3px solid var(--violet); }
+  .agent-card.planner  { border-top: 3px solid var(--blue); }
   .agent-card.maker    { border-top: 3px solid var(--green); }
   .agent-card-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--border); background: var(--panel-2); }
   .agent-card-title { display: flex; align-items: center; gap: 10px; }
   .agent-card-title .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; }
   .agent-card.research .agent-card-title .lbl { color: var(--accent); }
   .agent-card.builder  .agent-card-title .lbl { color: var(--violet-soft); }
+  .agent-card.planner  .agent-card-title .lbl { color: var(--blue); }
   .agent-card.maker    .agent-card-title .lbl { color: var(--green); }
   .agent-card .studio-warn { padding: 8px 12px; background: rgba(255,194,51,0.08); border-bottom: 1px solid var(--border); font-size: 11.5px; color: var(--yellow); display: flex; gap: 6px; align-items: flex-start; }
   .agent-card .studio-warn::before { content: '⚠'; flex-shrink: 0; }
@@ -273,12 +275,12 @@
   .knowledge-tag { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; padding: 4px 8px; border-radius: 4px; flex-shrink: 0; align-self: flex-start; }
   .knowledge-tag.research { color: var(--accent); border: 1px solid var(--accent-dim); background: var(--accent-bg); }
   .knowledge-tag.builder  { color: var(--violet-soft); border: 1px solid var(--violet); background: var(--violet-bg); }
+  .knowledge-tag.planner  { color: var(--blue); border: 1px solid var(--blue); background: rgba(91,142,255,0.08); }
   .knowledge-tag.maker    { color: var(--green); border: 1px solid var(--green-dim); background: rgba(108,255,141,0.08); }
   .knowledge-title { font-size: 13px; color: var(--text); font-weight: 500; line-height: 1.35; }
   .knowledge-summary { font-size: 12.5px; color: var(--text-dim); margin-top: 5px; line-height: 1.5; }
   .knowledge-time { font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: 0.08em; white-space: nowrap; align-self: flex-start; }
 
-  @media (max-width: 1300px) { .agent-grid { grid-template-columns: 1fr 1fr; } }
   @media (max-width: 900px)  { .agent-grid { grid-template-columns: 1fr; } }
 
   /* TIMELINE */
@@ -794,7 +796,7 @@
         <div>
           <div class="sling-eyebrow">Agents</div>
           <div class="sling-title">Always-on research crew</div>
-          <div class="sling-sub">Three background daemons working in parallel. <b style="color: var(--accent-soft);">Research</b> studies top RNG/simulator games to extract patterns. <b style="color: var(--violet-soft);">Builder</b> is a masterful Roblox-Studio + Luau engineer that researches DevForum, Reddit, GitHub, YouTube, and live games. <b style="color: var(--green);">Maker</b> reads what both have learned and uses the Roblox Studio MCP to actually build PACK RNG, one foundational step per cycle. Each cycle's findings appear below — click any to read the full writeup.</div>
+          <div class="sling-sub">Four background daemons in a pipeline. <b style="color: var(--accent-soft);">Research</b> studies top RNG/simulator games. <b style="color: var(--violet-soft);">Builder</b> mines DevForum, Reddit, GitHub, YouTube for the masterful Roblox-Studio + Luau ways to implement each system. <b style="color: var(--blue);">Planner</b> synthesizes both into precise, Studio-ready work orders. <b style="color: var(--green);">Maker</b> reads the latest work order and uses the Roblox Studio MCP to actually build it in your open place. Flow: <span style="font-family: var(--mono); font-size: 11.5px;">research + builder → planner → maker → game</span>.</div>
         </div>
       </div>
 
@@ -1943,7 +1945,8 @@
   const AGENT_META = {
     research: { className: 'research', desc: 'Studies top RNG / simulator games. 8 games × 8 lenses = 64 unique investigations before any repeat.' },
     builder:  { className: 'builder',  desc: 'Masters Roblox Studio + Luau. Mines DevForum, Reddit, GitHub, YouTube, live games. 16 build topics × 5 angles = 80 cycles before repeat.' },
-    maker:    { className: 'maker',    desc: 'Combines Research + Builder findings and uses the Roblox Studio MCP to ACTUALLY build PACK RNG. 10 foundational steps in sequence.', warn: 'Roblox Studio must be OPEN with a place loaded. Default 1h interval. Watch the first few cycles before walking away.' },
+    planner:  { className: 'planner',  desc: 'Synthesizes Research + Builder findings into precise, Studio-ready work orders for the Maker. One work order per build step.' },
+    maker:    { className: 'maker',    desc: 'Reads the latest Planner work order (or falls back to self-synthesis) and uses the Roblox Studio MCP to actually build PACK RNG.', warn: 'Roblox Studio must be OPEN with a place loaded. Default 1h interval. Watch the first few cycles before walking away.' },
   };
 
   function renderAgentCards(list) {
@@ -2109,12 +2112,13 @@
     }
   }
   function cycleAgentFilter() {
-    const order = ['all', 'research', 'builder', 'maker'];
+    const order = ['all', 'research', 'builder', 'planner', 'maker'];
     const idx = order.indexOf(agentFeedFilter);
     agentFeedFilter = order[(idx + 1) % order.length];
     const label = agentFeedFilter === 'all' ? 'All agents'
                 : agentFeedFilter === 'research' ? 'Research only'
                 : agentFeedFilter === 'builder' ? 'Builder only'
+                : agentFeedFilter === 'planner' ? 'Planner only'
                 : 'Maker only';
     $('agentFeedFilter').textContent = label;
     pullAgentKnowledge();
